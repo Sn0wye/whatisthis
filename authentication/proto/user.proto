@@ -1,0 +1,43 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package pb;
+
+option go_package = ".;pb";
+
+service UserService {
+  rpc GetUsers (google.protobuf.Empty) returns (GetUsersResponse);
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string username = 3;
+  string email = 4;
+  string password = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message GetUsersResponse {
+  repeated User users = 1;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {
+  User user = 1;
+}
+
+

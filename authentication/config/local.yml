@@ -1,0 +1,24 @@
+env: local
+http:
+  port: 8080
+grpc:
+  port: 50050
+security:
+  jwt_secret: super-secret-key
+  issuer: whatisthis
+db:
+  driver: postgres
+  host: 127.0.0.1
+  port: 5432
+  database: authentication
+  user: whatisthis
+  password: whatisthis
+  connectionString: postgres://whatisthis:whatisthis@127.0.0.1:5432/authentication?sslmode=disable
+log:
+  log_level: debug
+  encoding: console # json or console
+  log_file_name: './storage/logs/server.log'
+  max_backups: 30
+  max_age: 7
+  max_size: 1024
+  compress: true
