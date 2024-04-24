@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -18,7 +19,18 @@ type Claims struct {
 }
 
 func NewJwt(conf *viper.Viper) *JWT {
-	return &JWT{key: []byte(conf.GetString("security.jwt_secret"))}
+	return &JWT{
+		key:    []byte(conf.GetString("security.jwt_secret")),
+		issuer: conf.GetString("security.jwt_issuer"),
+	}
+}
+
+func (j *JWT) Key() []byte {
+	return j.key
+}
+
+func (j *JWT) Issuer() string {
+	return j.issuer
 }
 
 func (j *JWT) GenToken(userId string, expiresAt time.Time) (string, error) {
@@ -49,9 +61,18 @@ func (j *JWT) ParseToken(tokenString string) (*Claims, error) {
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		return claims, nil
-	} else {
-		return nil, err
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, errors.New("token claims are invalid")
 	}
+
+	if claims.ExpiresAt.Before(claims.IssuedAt.Time) {
+		return nil, errors.New("token is expired")
+	}
+
+	if claims.Issuer != j.issuer {
+		return nil, errors.New("token issuer is invalid")
+	}
+
+	return claims, nil
 }
