@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: whatisthis-postgres
+    environment:
+      POSTGRES_USER: whatisthis
+      POSTGRES_PASSWORD: whatisthis
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: whatisthis-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: whatisthis
+      RABBITMQ_DEFAULT_PASS: whatisthis
+    ports:
+      - '5672:5672'
+      - '15672:15672'
