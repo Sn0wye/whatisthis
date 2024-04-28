@@ -24,9 +24,6 @@ public class CalculateCreditScoreService {
         DebtScore debtScore = this.calculateDebtScoreService.calculate(income, debt);
         PropertyScore propertyScore = this.calculatePropertyScoreService.calculate(propertyValue);
 
-        System.out.println("Income Score: " + incomeScore.getScore());
-        System.out.println("Debt Score: " + debtScore.getScore());
-        System.out.println("Property Score: " + propertyScore.getScore());
         return incomeScore.getScore() + debtScore.getScore() + propertyScore.getScore();
     }
 }
