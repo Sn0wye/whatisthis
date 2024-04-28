@@ -3,27 +3,33 @@ package com.whatisthis.scorer.services;
 import com.whatisthis.scorer.model.PropertyScore;
 import org.springframework.stereotype.Service;
 
-// Property Ownership Score:
-// Owns Expensive Property: 300 (Value above $500,000)
-// Owns Medium-Priced Property: 150 (Value between $200,000 and $500,000)
-// Low-Priced / Does Not Own Property: 0 (Below $200,000)
-
 @Service
 public class CalculatePropertyScoreService {
 
+    private static final double EXPENSIVE_PROPERTY_THRESHOLD = 500000.0;
+    private static final double MEDIUM_PRICED_PROPERTY_THRESHOLD = 200000.0;
+    private static final int HIGH_PROPERTY_SCORE = 300;
+    private static final int MEDIUM_PROPERTY_SCORE_MIN = 150;
+    private static final int MEDIUM_PROPERTY_SCORE_MAX = 300;
+    private static final int LOW_PROPERTY_SCORE = 0;
+
     public PropertyScore calculate(double propertyValue) {
-        if (propertyValue > 500000) {
-            return PropertyScore.HIGH();
-        } else if (propertyValue > 200000) {
-            double proportion = (propertyValue - 200000) / (500000 - 200000);
-            int score = (int) (150 + proportion * (300 - 150));
-            return new PropertyScore(score);
-        } else if (propertyValue > 0) {
-            double proportion = propertyValue / 200000;
-            int score = (int) (proportion * 150);
-            return new PropertyScore(score);
-        } else {
-            return PropertyScore.LOW();
+        if (propertyValue > EXPENSIVE_PROPERTY_THRESHOLD) {
+            return new PropertyScore(HIGH_PROPERTY_SCORE);
         }
+
+        if (propertyValue > MEDIUM_PRICED_PROPERTY_THRESHOLD) {
+            double proportion = (propertyValue - MEDIUM_PRICED_PROPERTY_THRESHOLD) / (EXPENSIVE_PROPERTY_THRESHOLD - MEDIUM_PRICED_PROPERTY_THRESHOLD);
+            int score = (int) (MEDIUM_PROPERTY_SCORE_MIN + proportion * (MEDIUM_PROPERTY_SCORE_MAX - MEDIUM_PROPERTY_SCORE_MIN));
+            return new PropertyScore(score);
+        }
+
+        if (propertyValue > 0) {
+            double proportion = propertyValue / MEDIUM_PRICED_PROPERTY_THRESHOLD;
+            int score = (int) (proportion * MEDIUM_PROPERTY_SCORE_MIN);
+            return new PropertyScore(score);
+        }
+
+        return new PropertyScore(LOW_PROPERTY_SCORE);
     }
 }
