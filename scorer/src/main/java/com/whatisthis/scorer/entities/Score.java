@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.id.uuid.UuidGenerator;
+
 import java.util.UUID;
 
 @Data
@@ -19,11 +20,59 @@ public class Score {
     private double income;
     private double debt;
     private double propertyValue;
+    private int creditScore = 0;
+
+    public Score() {
+    }
 
     public Score(ScoreEvent scoreEvent) {
         this.userId = scoreEvent.userId();
         this.income = scoreEvent.income();
         this.debt = scoreEvent.debt();
         this.propertyValue = scoreEvent.propertyValue();
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public double getIncome() {
+        return income;
+    }
+
+    public void setIncome(double income) {
+        this.income = income;
+    }
+
+    public double getDebt() {
+        return debt;
+    }
+
+    public void setDebt(double debt) {
+        this.debt = debt;
+    }
+
+    public double getPropertyValue() {
+        return propertyValue;
+    }
+
+    public void setPropertyValue(double propertyValue) {
+        this.propertyValue = propertyValue;
+    }
+
+    public int getCreditScore() {
+        return creditScore;
+    }
+
+    public void setCreditScore(int creditScore) {
+        this.creditScore = creditScore;
     }
 }

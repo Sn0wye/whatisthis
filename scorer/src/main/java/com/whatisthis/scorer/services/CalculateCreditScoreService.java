@@ -1,8 +1,8 @@
 package com.whatisthis.scorer.services;
 
-import com.whatisthis.scorer.model.IncomeScore;
-import com.whatisthis.scorer.model.DebtScore;
-import com.whatisthis.scorer.model.PropertyScore;
+import com.whatisthis.scorer.model.dto.IncomeScore;
+import com.whatisthis.scorer.model.dto.DebtScore;
+import com.whatisthis.scorer.model.dto.PropertyScore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

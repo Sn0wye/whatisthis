@@ -1,4 +1,4 @@
-package com.whatisthis.scorer.model;
+package com.whatisthis.scorer.model.dto;
 
 // Debt-to-Income Ratio Score:
 // High Score = Low Ratio: 300 (Below 20%)

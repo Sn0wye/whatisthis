@@ -1,6 +1,6 @@
 package com.whatisthis.scorer.services;
 
-import com.whatisthis.scorer.model.IncomeScore;
+import com.whatisthis.scorer.model.dto.IncomeScore;
 import org.springframework.stereotype.Service;
 
 @Service

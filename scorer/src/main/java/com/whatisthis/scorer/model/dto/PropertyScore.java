@@ -1,4 +1,4 @@
-package com.whatisthis.scorer.model;
+package com.whatisthis.scorer.model.dto;
 
 // Property Ownership Score:
 // Owns Expensive Property: 300 (Value above $500,000)
@@ -20,7 +20,7 @@ public class PropertyScore {
     }
 
     public static PropertyScore HIGH() {
-            return new PropertyScore(300);
+        return new PropertyScore(300);
     }
 
     public static PropertyScore MEDIUM() {

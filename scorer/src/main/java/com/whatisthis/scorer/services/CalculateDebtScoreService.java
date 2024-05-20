@@ -1,6 +1,6 @@
 package com.whatisthis.scorer.services;
 
-import com.whatisthis.scorer.model.DebtScore;
+import com.whatisthis.scorer.model.dto.DebtScore;
 import org.springframework.stereotype.Service;
 
 @Service
