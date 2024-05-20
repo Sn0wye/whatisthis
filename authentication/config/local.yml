@@ -5,7 +5,7 @@ grpc:
   port: 50050
 security:
   jwt_secret: super-secret-key
-  issuer: whatisthis
+  jwt_issuer: whatisthis
 db:
   driver: postgres
   host: 127.0.0.1
