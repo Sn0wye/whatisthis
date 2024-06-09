@@ -1,29 +1,20 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
 
 	"github.com/spf13/viper"
 )
 
 func GetConfig() *viper.Viper {
-	envConf := os.Getenv("APP_CONF")
-	// TODO: Uncomment this code if you want to use flag to set the config path
-	// if envConf == "" {
-	// 	fmt.Println("No config path provided, using default config path")
-	// 	flag.StringVar(&envConf, "conf", "config/local.yml", "config path, eg: -conf config/local.yml")
-	// 	flag.Parse()
-	// }
-	if envConf == "" {
-		envConf = "../config/local.yml"
+	configPath := os.Getenv("APP_CONF")
+	if configPath == "" {
+		configPath = filepath.Join(getAppRootPath(), "config", "local.yml") // Default path relative to root
 	}
-
-	basepath := getConfigPath() + "/config/local.yml"
-
-	return getConfig(basepath)
+	fmt.Println("Using config path:", configPath)
+	return getConfig(configPath)
 }
 
 func getConfig(path string) *viper.Viper {
@@ -36,13 +27,10 @@ func getConfig(path string) *viper.Viper {
 	return conf
 }
 
-func getConfigPath() string {
-	_, b, _, _ := runtime.Caller(0)
-	basepath := filepath.Dir(b)
-	index := strings.LastIndex(basepath, "/pkg")
-	if index != -1 {
-		basepath = basepath[:index]
+func getAppRootPath() string {
+	dir, err := os.Getwd() // Get current working directory
+	if err != nil {
+		panic(err)
 	}
-
-	return basepath
+	return dir
 }

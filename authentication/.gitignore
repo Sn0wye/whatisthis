@@ -3,3 +3,4 @@ db.sqlite
 *.log
 config/prod.yml
 pb
+main

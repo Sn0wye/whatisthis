@@ -1,11 +1,10 @@
 package db
 
 import (
-	"fmt"
+	"log"
 
 	"whatisthis/pkg/config"
 
-	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -14,37 +13,26 @@ import (
 
 func GetDB() *gorm.DB {
 	conf := config.GetConfig()
-	driver := conf.Get("db.driver")
-	conn := getConnectionString(conf)
+	driver := conf.GetString("db.driver")
+	conn := conf.GetString("db.connectionString")
 
-	if driver == "postgres" {
-		db, err := gorm.Open(postgres.Open(conn), &gorm.Config{
+	var db *gorm.DB
+	var err error
+
+	switch driver {
+	case "postgres":
+		db, err = gorm.Open(postgres.Open(conn), &gorm.Config{
 			Logger: gormLogger.Default.LogMode(gormLogger.Info),
 		})
-
-		if err != nil {
-			panic("Failed to connect to database")
-		}
-
-		return db
+	default: // sqlite (default)
+		db, err = gorm.Open(sqlite.Open("db.sqlite"), &gorm.Config{
+			Logger: gormLogger.Default.LogMode(gormLogger.Info),
+		})
 	}
 
-	// sqlite (default)
-	db, err := gorm.Open(sqlite.Open("db.sqlite"), &gorm.Config{})
 	if err != nil {
-		panic("Failed to connect to database")
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
 	return db
-}
-
-func getConnectionString(conf *viper.Viper) string {
-	connRaw := conf.Get("db.connectionString")
-	conn, ok := connRaw.(string)
-
-	if !ok {
-		fmt.Println("Connection string is not defined in db.connectionString")
-	}
-
-	return conn
 }
