@@ -24,8 +24,6 @@ func JWTMiddleware(conf *viper.Viper, logger *logger.Logger) gin.HandlerFunc {
 			return
 		}
 
-		fmt.Print(tokenString)
-
 		claims, err := j.ParseToken(tokenString)
 		if err != nil {
 			fmt.Println("Invalid token provided")

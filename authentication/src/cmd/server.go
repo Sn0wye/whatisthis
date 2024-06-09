@@ -52,7 +52,7 @@ func startHTTPServer(conf *viper.Viper, logger *logger.Logger) {
 	router.Use(middleware.CORSMiddleware())
 	jwt := middleware.JWTMiddleware(conf, logger)
 
-	routes.BindHTTPRoutes(router, jwt, logger)
+	routes.BindAuthRoutes(router, jwt, logger)
 
 	port := conf.Get("http.port")
 	formattedPort := fmt.Sprintf(":%d", port)
