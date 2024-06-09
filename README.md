@@ -2,6 +2,8 @@
 
 This repository serves as a learning project to create and deploy multiple microservices using different technologies and languages, with a focus on enabling communication between them.
 
+TLDR; There will be A LOT of overengineering, but that's the point. The goal is to learn and experiment with different technologies and patterns, not to create a production-ready application.
+
 ## Services
 
 | Service Name   | Description                                       | Language | Framework   | Ports                     |
