@@ -10,17 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BindAuthRoutes(r *gin.Engine, jwtMiddleware gin.HandlerFunc, log *logger.Logger) {
+func BindHTTPRoutes(r *gin.Engine, jwtMiddleware gin.HandlerFunc, log *logger.Logger) {
 	db := db.GetDB()
 	conf := config.GetConfig()
 	jwt := jwt.NewJwt(conf)
 
-	router := r.Group("/auth")
 	controller := controllers.NewAuthController(db, jwt)
 
-	router.POST("/login", controller.Login)
-	router.POST("/register", controller.Register)
+	r.POST("/login", controller.Login)
+	r.POST("/register", controller.Register)
 
-	router.Use(jwtMiddleware)
-	router.GET("/profile", controller.Profile)
+	r.Use(jwtMiddleware)
+	r.GET("/profile", controller.Profile)
 }

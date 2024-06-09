@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -21,6 +22,8 @@ import (
 )
 
 func main() {
+	flag.Parse()
+
 	conf := config.GetConfig()
 	logger := logger.NewLog(conf)
 
@@ -49,7 +52,7 @@ func startHTTPServer(conf *viper.Viper, logger *logger.Logger) {
 	router.Use(middleware.CORSMiddleware())
 	jwt := middleware.JWTMiddleware(conf, logger)
 
-	routes.BindAuthRoutes(router, jwt, logger)
+	routes.BindHTTPRoutes(router, jwt, logger)
 
 	port := conf.Get("http.port")
 	formattedPort := fmt.Sprintf(":%d", port)
