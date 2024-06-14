@@ -9,7 +9,7 @@ TLDR; There will be A LOT of overengineering, but that's the point. The goal is 
 | Service Name   | Description                                       | Language | Framework   | Ports                     |
 | -------------- | ------------------------------------------------- | -------- | ----------- | ------------------------- |
 | Authentication | Manages user authentication and authorization.    | Go       | Gin         | 8080 (HTTP), 50050 (gRPC) |
-| Scorer         | Calculates user scores based on certain criteria. | Java     | Spring Boot | 8081                      |
+| Scorer         | Calculates user scores based on certain criteria. | Java     | Spring Boot | 8081 (HTTP)               |
 
 ## Infrastructure
 
