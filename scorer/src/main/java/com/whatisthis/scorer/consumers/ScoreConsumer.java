@@ -1,6 +1,7 @@
 package com.whatisthis.scorer.consumers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.whatisthis.scorer.constants.RabbitMQConstants;
 import com.whatisthis.scorer.repositories.ScoreRepository;
 import com.whatisthis.scorer.services.CalculateCreditScoreService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,9 +23,9 @@ public class ScoreConsumer {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @RabbitListener(queues = "calculate-score")
+    @RabbitListener(queues = RabbitMQConstants.CALCULATE_SCORE_QUEUE)
     public void consume(String message) {
         try {
             ScoreEvent scoreEvent = new ScoreEvent(message);
@@ -54,7 +55,7 @@ public class ScoreConsumer {
                     score.getCreditScore()
             );
             String message = objectMapper.writeValueAsString(scoreUpdatedEvent);
-            rabbitTemplate.convertAndSend("score-updated", message);
+            rabbitTemplate.convertAndSend(RabbitMQConstants.SCORE_UPDATED_QUEUE, message);
             System.out.println("Broadcast score updated event: " + message);
         } catch (JsonProcessingException e) {
             System.out.println("Error broadcasting score updated event: " + e.getMessage());
