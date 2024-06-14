@@ -9,13 +9,6 @@ public record ScoreEvent(
         double debt,
         double propertyValue
 ) {
-    public ScoreEvent(String userId, double income, double debt, double propertyValue) {
-        this.userId = userId;
-        this.income = income;
-        this.debt = debt;
-        this.propertyValue = propertyValue;
-    }
-
     public ScoreEvent(String json) throws JsonProcessingException {
         this(new ObjectMapper().readValue(json, ScoreEvent.class));
     }
