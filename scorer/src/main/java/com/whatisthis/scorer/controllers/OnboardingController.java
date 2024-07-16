@@ -7,7 +7,6 @@ import com.whatisthis.scorer.repositories.ScoreRepository;
 import com.whatisthis.scorer.services.CalculateCreditScoreService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
