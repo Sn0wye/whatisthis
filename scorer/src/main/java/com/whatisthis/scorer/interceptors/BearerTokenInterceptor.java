@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import com.whatisthis.scorer.services.GrpcAuthService;
+import com.whatisthis.scorer.utils.ErrorResponseUtil;
 import pb.Auth;
 
 @Component
@@ -25,12 +26,14 @@ public class BearerTokenInterceptor implements HandlerInterceptor {
                 request.setAttribute("userId", validatedToken.getSub());
                 request.setAttribute("token", validatedToken);
             } catch (Exception e) {
-                System.out.println("JWT parsing or validation failed: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                System.err.println("JWT parsing or validation failed: " + e.getMessage());
+                ErrorResponseUtil.writeUnauthorizedErrorResponse(response, "JWT parsing or validation failed");
                 return false;
             }
+        } else {
+            ErrorResponseUtil.writeUnauthorizedErrorResponse(response, "Missing or invalid Authorization header");
+            return false;
         }
         return true;
     }
 }
-
