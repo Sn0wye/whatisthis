@@ -6,6 +6,12 @@ PROTO_DIR="./proto"
 # Output directory for generated Go code
 OUTPUT_DIR="./pb"
 
+# Check if the output directory exists, if not, create it
+if [ ! -d "$OUTPUT_DIR" ]; then
+  mkdir -p "$OUTPUT_DIR"
+  echo "Created output directory $OUTPUT_DIR"
+fi
+
 # Run protoc for each .proto file in the directory
 for file in $PROTO_DIR/*.proto; do
   filename=$(basename -- "$file")

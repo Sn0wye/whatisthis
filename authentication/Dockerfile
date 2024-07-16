@@ -3,12 +3,28 @@ FROM golang:1.22.4-alpine AS builder
 
 WORKDIR /app
 
+# Install curl
+RUN apk --no-cache add curl
+
+# Set the version of protoc you want to install
+ENV PROTOC_VERSION=27.1
+
+# Download and install protoc
+RUN curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip \
+    && unzip protoc-${PROTOC_VERSION}-linux-x86_64.zip -d /usr/local \
+    && rm protoc-${PROTOC_VERSION}-linux-x86_64.zip
+
+# Install protoc-gen-go and protoc-gen-go-grpc plugins
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1 \
+  && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2.0
+
 COPY go.mod go.sum ./
 
 RUN go mod download
 
 COPY . .
 
+RUN sh ./scripts/proto-build.sh
 RUN go build -o main src/cmd/server.go
 
 # Runner
