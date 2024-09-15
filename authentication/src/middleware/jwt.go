@@ -8,28 +8,24 @@ import (
 	"whatisthis/pkg/jwt"
 	"whatisthis/pkg/logger"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-func JWTMiddleware(conf *viper.Viper, logger *logger.Logger) gin.HandlerFunc {
+func JWTMiddleware(conf *viper.Viper, logger *logger.Logger) fiber.Handler {
 	j := jwt.NewJwt(conf)
-	return func(ctx *gin.Context) {
-		tokenString := ctx.GetHeader("Authorization")
+	return func(ctx *fiber.Ctx) error {
+		tokenString := ctx.Get("Authorization")
 		if tokenString == "" {
 			fmt.Println("No token provided")
-			exceptions.Unauthorized(ctx)
-			ctx.Abort()
-			return
+			return exceptions.Unauthorized(ctx)
 		}
 
 		claims, err := j.ParseToken(tokenString)
 		if err != nil {
 			fmt.Println("Invalid token provided")
-			exceptions.Unauthorized(ctx)
-			ctx.Abort()
-			return
+			return exceptions.Unauthorized(ctx)
 		}
 
 		expirationTime := claims.ExpiresAt.Time
@@ -37,20 +33,18 @@ func JWTMiddleware(conf *viper.Viper, logger *logger.Logger) gin.HandlerFunc {
 			newTokenString, err := j.GenToken(claims.Subject, time.Now().Add(time.Hour*24*90))
 			if err != nil {
 				fmt.Println("Error generating new token")
-				exceptions.InternalServerError(ctx, err.Error())
-				ctx.Abort()
-				return
+				return exceptions.InternalServerError(ctx, err.Error())
 			}
-			ctx.Header("Authorization", "Bearer "+newTokenString)
+			ctx.Set("Authorization", "Bearer "+newTokenString)
 		}
 
-		ctx.Set("claims", claims)
+		ctx.Locals("claims", claims)
 		recoveryLoggerFunc(ctx, logger)
-		ctx.Next()
+		return ctx.Next()
 	}
 }
 
-func recoveryLoggerFunc(ctx *gin.Context, logger *logger.Logger) {
-	userInfo := ctx.MustGet("claims").(*jwt.Claims)
+func recoveryLoggerFunc(ctx *fiber.Ctx, logger *logger.Logger) {
+	userInfo := ctx.Locals("claims").(*jwt.Claims)
 	logger.NewContext(ctx, zap.String("UserId", userInfo.Subject))
 }

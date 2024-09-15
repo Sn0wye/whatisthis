@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
-
 	"whatisthis/pkg/config"
 	"whatisthis/pkg/logger"
 	"whatisthis/src/db"
@@ -16,7 +14,8 @@ import (
 	"whatisthis/src/models"
 	"whatisthis/src/routes"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
@@ -48,25 +47,35 @@ func migrateDB(logger *logger.Logger) {
 }
 
 func startHTTPServer(conf *viper.Viper, logger *logger.Logger) {
-	router := gin.Default()
-	router.Use(middleware.CORSMiddleware())
+	app := fiber.New()
+
+	// CORS middleware
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		// AllowCredentials: true,
+		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
+	}))
+
+	// JWT Middleware
 	jwt := middleware.JWTMiddleware(conf, logger)
 
-	routes.BindAuthRoutes(router, jwt, logger)
+	// Bind routes
+	routes.BindAuthRoutes(app, jwt, logger)
 
-	port := conf.Get("http.port")
+	port := conf.GetInt("http.port")
 	formattedPort := fmt.Sprintf(":%d", port)
 
 	go func() {
 		fmt.Printf("HTTP server is running on port %d\n", port)
-		if err := http.ListenAndServe(formattedPort, router); err != nil {
+		if err := app.Listen(formattedPort); err != nil {
 			log.Fatalf("failed to start HTTP server: %v", err)
 		}
 	}()
 }
 
 func startGRPCServer(conf *viper.Viper) {
-	grpcPort := conf.Get("grpc.port")
+	grpcPort := conf.GetInt("grpc.port")
 	grpcFormattedPort := fmt.Sprintf(":%d", grpcPort)
 
 	lis, err := net.Listen("tcp", grpcFormattedPort)

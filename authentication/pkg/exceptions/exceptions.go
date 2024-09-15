@@ -1,9 +1,7 @@
 package exceptions
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 type Error struct {
@@ -11,29 +9,29 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-func writeError(c *gin.Context, message string, code int) {
+func writeError(c *fiber.Ctx, message string, code int) error {
 	resp := Error{
 		Code:    code,
 		Message: message,
 	}
 
-	c.JSON(code, resp)
+	return c.Status(code).JSON(resp)
 }
 
 var (
-	BadRequest = func(c *gin.Context, message string) {
-		writeError(c, message, http.StatusBadRequest)
+	BadRequest = func(c *fiber.Ctx, message string) error {
+		return writeError(c, message, fiber.StatusBadRequest)
 	}
-	InternalServerError = func(c *gin.Context, message string) {
-		writeError(c, message, http.StatusInternalServerError)
+	InternalServerError = func(c *fiber.Ctx, message string) error {
+		return writeError(c, message, fiber.StatusInternalServerError)
 	}
-	Unauthorized = func(c *gin.Context) {
-		writeError(c, "Unauthorized", http.StatusUnauthorized)
+	Unauthorized = func(c *fiber.Ctx) error {
+		return writeError(c, "Unauthorized", fiber.StatusUnauthorized)
 	}
-	NotFound = func(c *gin.Context, message string) {
-		writeError(c, message, http.StatusNotFound)
+	NotFound = func(c *fiber.Ctx, message string) error {
+		return writeError(c, message, fiber.StatusNotFound)
 	}
-	UnprocessableEntity = func(c *gin.Context, message string) {
-		writeError(c, message, http.StatusUnprocessableEntity)
+	UnprocessableEntity = func(c *fiber.Ctx, message string) error {
+		return writeError(c, message, fiber.StatusUnprocessableEntity)
 	}
 )

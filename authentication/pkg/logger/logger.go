@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -85,24 +85,22 @@ func initZap(conf *viper.Viper) *Logger {
 		return &Logger{zap.New(core, zap.Development(), zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
 	}
 	return &Logger{zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
-
 }
 
 func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format("2006-01-02 15:04:05.000000000"))
 }
 
-func (l *Logger) NewContext(ctx *gin.Context, fields ...zapcore.Field) {
-	ctx.Set(LOGGER_KEY, l.WithContext(ctx).With(fields...))
+func (l *Logger) NewContext(ctx *fiber.Ctx, fields ...zapcore.Field) {
+	ctx.Locals(LOGGER_KEY, l.With(fields...))
 }
 
-func (l *Logger) WithContext(ctx *gin.Context) *Logger {
+func (l *Logger) WithContext(ctx *fiber.Ctx) *Logger {
 	if ctx == nil {
 		return l
 	}
-	zl, _ := ctx.Get(LOGGER_KEY)
-	ctxLogger, ok := zl.(*zap.Logger)
-	if ok {
+	zl := ctx.Locals(LOGGER_KEY)
+	if ctxLogger, ok := zl.(*zap.Logger); ok {
 		return &Logger{ctxLogger}
 	}
 	return l

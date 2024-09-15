@@ -7,20 +7,20 @@ import (
 	"whatisthis/src/controllers"
 	"whatisthis/src/db"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
-func BindAuthRoutes(r *gin.Engine, jwtMiddleware gin.HandlerFunc, log *logger.Logger) {
+func BindAuthRoutes(app *fiber.App, jwtMiddleware fiber.Handler, log *logger.Logger) {
 	db := db.GetDB()
 	conf := config.GetConfig()
 	jwt := jwt.NewJwt(conf)
 
-	router := r.Group("/auth")
+	router := app.Group("/auth")
 
 	controller := controllers.NewAuthController(db, jwt)
 
-	router.POST("/login", controller.Login)
-	router.POST("/register", controller.Register)
+	router.Post("/login", controller.Login)
+	router.Post("/register", controller.Register)
 
-	router.GET("/profile", jwtMiddleware, controller.Profile)
+	router.Get("/profile", jwtMiddleware, controller.Profile)
 }

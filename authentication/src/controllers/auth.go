@@ -2,23 +2,22 @@ package controllers
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"whatisthis/pkg/exceptions"
 	"whatisthis/pkg/jwt"
 	"whatisthis/src/models"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type AuthController interface {
-	Profile(ctx *gin.Context)
-	Register(ctx *gin.Context)
-	Login(ctx *gin.Context)
+	Profile(ctx *fiber.Ctx) error
+	Register(ctx *fiber.Ctx) error
+	Login(ctx *fiber.Ctx) error
 	GenerateToken(ctx context.Context, userId string) (string, error)
 }
 
@@ -31,42 +30,37 @@ func NewAuthController(db *gorm.DB, jwt *jwt.JWT) AuthController {
 	return &authController{db: db, jwt: jwt}
 }
 
-func (s *authController) Profile(c *gin.Context) {
-	claims := c.MustGet("claims").(*jwt.Claims)
+func (s *authController) Profile(c *fiber.Ctx) error {
+	claims := c.Locals("claims").(*jwt.Claims)
 	user := models.User{}
 	s.db.Where("id = ?", claims.Subject).First(&user)
 
-	c.JSON(http.StatusOK, user)
+	return c.Status(fiber.StatusOK).JSON(user)
 }
 
 type RegisterRequest struct {
-	Name     string `json:"name" binding:"required"`
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
+	Name     string `json:"name" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
 }
 
-func (s *authController) Register(c *gin.Context) {
+func (s *authController) Register(c *fiber.Ctx) error {
 	db := s.db
-	body := RegisterRequest{}
-	err := c.ShouldBindJSON(&body)
-	var user models.User
-
-	if err != nil {
-		exceptions.UnprocessableEntity(c, "Invalid JSON provided")
-		return
+	body := new(RegisterRequest)
+	if err := c.BodyParser(body); err != nil {
+		return exceptions.UnprocessableEntity(c, "Invalid JSON provided")
 	}
 
+	var user models.User
 	exists := db.Where("email = ?", body.Email).First(&user).RowsAffected
 	if exists > 0 {
-		exceptions.BadRequest(c, "Email already taken")
-		return
+		return exceptions.BadRequest(c, "Email already taken")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 	if err != nil {
-		exceptions.InternalServerError(c, "failed to hash password")
-		return
+		return exceptions.InternalServerError(c, "failed to hash password")
 	}
 
 	user = models.User{
@@ -78,47 +72,42 @@ func (s *authController) Register(c *gin.Context) {
 
 	db.Create(&user)
 
-	token, err := s.GenerateToken(c, user.ID.String())
+	token, err := s.GenerateToken(context.Background(), user.ID.String())
 	if err != nil {
-		exceptions.InternalServerError(c, "failed to generate JWT token")
+		return exceptions.InternalServerError(c, "failed to generate JWT token")
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"token": token,
 	})
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
-func (s *authController) Login(c *gin.Context) {
+func (s *authController) Login(c *fiber.Ctx) error {
 	db := s.db
-	body := LoginRequest{}
-	err := c.ShouldBindJSON(&body)
-	var user models.User
-
-	if err != nil {
-		exceptions.UnprocessableEntity(c, "Invalid JSON provided")
-		return
+	body := new(LoginRequest)
+	if err := c.BodyParser(body); err != nil {
+		return exceptions.UnprocessableEntity(c, "Invalid JSON provided")
 	}
 
+	var user models.User
 	db.Where("email = ?", body.Email).First(&user)
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
-		exceptions.Unauthorized(c)
-		return
+		return exceptions.Unauthorized(c)
 	}
 
-	token, err := s.GenerateToken(c, user.ID.String())
+	token, err := s.GenerateToken(context.Background(), user.ID.String())
 	if err != nil {
-		exceptions.InternalServerError(c, "failed to generate JWT token")
-		return
+		return exceptions.InternalServerError(c, "failed to generate JWT token")
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"token": token,
 	})
 }
