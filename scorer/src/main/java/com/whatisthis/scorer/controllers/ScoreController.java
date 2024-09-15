@@ -1,11 +1,13 @@
 package com.whatisthis.scorer.controllers;
 
 import com.whatisthis.scorer.entities.Score;
+import com.whatisthis.scorer.model.request.CalculateScoreRequest;
+import com.whatisthis.scorer.model.request.UpdateScoreRequest;
 import com.whatisthis.scorer.model.response.ScoreResponse;
 import com.whatisthis.scorer.repositories.ScoreRepository;
 import com.whatisthis.scorer.services.CalculateCreditScoreService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,41 +22,49 @@ public class ScoreController {
     private CalculateCreditScoreService calculateCreditScoreService;
 
     @PostMapping("/score/calculate")
-    public ResponseEntity<ScoreResponse> calculateScore(@RequestBody Score score) {
+    public ResponseEntity<ScoreResponse> calculateScore(HttpServletRequest request, @RequestBody CalculateScoreRequest body) {
+        String userId = request.getAttribute("userId").toString();
+
         int creditScore = calculateCreditScoreService.execute(
-                score.getIncome(),
-                score.getDebt(),
-                score.getPropertyValue()
+                body.income(),
+                body.debt(),
+                body.assetsValue()
         );
 
+        Score score = new Score();
+        score.setUserId(userId);
+        score.setIncome(body.income());
+        score.setDebt(body.debt());
+        score.setAssetsValue(body.assetsValue());
         score.setCreditScore(creditScore);
 
         scoreRepository.save(score);
 
         return ResponseEntity.ok(
                 new ScoreResponse(
-                        score.getUserId(),
                         score.getCreditScore()
                 )
         );
     }
 
     @PostMapping("/score/update")
-    public ResponseEntity<ScoreResponse> updateScore(@RequestBody Score score) {
-        Score existingScore = scoreRepository.findByUserId(score.getUserId()).orElse(null);
+    public ResponseEntity<ScoreResponse> updateScore(HttpServletRequest request, @RequestBody UpdateScoreRequest body) {
+        String userId = request.getAttribute("userId").toString();
+
+        Score existingScore = scoreRepository.findByUserId(userId).orElse(null);
 
         if (existingScore == null) {
             return ResponseEntity.notFound().build();
         }
 
-        existingScore.setIncome(score.getIncome());
-        existingScore.setDebt(score.getDebt());
-        existingScore.setPropertyValue(score.getPropertyValue());
+        existingScore.setIncome(body.income());
+        existingScore.setDebt(body.debt());
+        existingScore.setAssetsValue(body.assetsValue());
 
         int creditScore = calculateCreditScoreService.execute(
                 existingScore.getIncome(),
                 existingScore.getDebt(),
-                existingScore.getPropertyValue()
+                existingScore.getAssetsValue()
         );
 
         existingScore.setCreditScore(creditScore);
@@ -63,14 +73,15 @@ public class ScoreController {
 
         return ResponseEntity.ok(
                 new ScoreResponse(
-                        existingScore.getUserId(),
                         existingScore.getCreditScore()
                 )
         );
     }
 
-    @GetMapping("/score/{userId}")
-    public ResponseEntity<ScoreResponse> getScore(@Param("userId") String userId) {
+    @GetMapping("/score")
+    public ResponseEntity<ScoreResponse> getScore(HttpServletRequest request) {
+        String userId = request.getAttribute("userId").toString();
+
         Score score = scoreRepository.findByUserId(userId).orElse(null);
 
         if (score == null) {
@@ -79,7 +90,6 @@ public class ScoreController {
 
         return ResponseEntity.ok(
                 new ScoreResponse(
-                        score.getUserId(),
                         score.getCreditScore()
                 )
         );

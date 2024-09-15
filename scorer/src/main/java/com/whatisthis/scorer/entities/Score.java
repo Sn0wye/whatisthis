@@ -19,7 +19,7 @@ public class Score {
     private String userId;
     private double income;
     private double debt;
-    private double propertyValue;
+    private double assetsValue;
     private int creditScore = 0;
 
     public Score() {
@@ -29,7 +29,7 @@ public class Score {
         this.userId = scoreEvent.userId();
         this.income = scoreEvent.income();
         this.debt = scoreEvent.debt();
-        this.propertyValue = scoreEvent.propertyValue();
+        this.assetsValue = scoreEvent.assetsValue();
     }
 
     public UUID getId() {
@@ -60,12 +60,12 @@ public class Score {
         this.debt = debt;
     }
 
-    public double getPropertyValue() {
-        return propertyValue;
+    public double getAssetsValue() {
+        return assetsValue;
     }
 
-    public void setPropertyValue(double propertyValue) {
-        this.propertyValue = propertyValue;
+    public void setAssetsValue(double assetsValue) {
+        this.assetsValue = assetsValue;
     }
 
     public int getCreditScore() {

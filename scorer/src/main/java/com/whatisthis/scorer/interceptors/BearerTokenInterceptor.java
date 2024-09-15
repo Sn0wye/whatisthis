@@ -22,6 +22,13 @@ public class BearerTokenInterceptor implements HandlerInterceptor {
             String bearerToken = authorizationHeader.substring(7); // Remove "Bearer " prefix
             try {
                 Auth.ParseTokenResponse validatedToken = grpcAuthService.parseToken(bearerToken);
+
+                if (validatedToken == null) {
+                    System.err.println("Token validation returned null");
+                    ErrorResponseUtil.writeUnauthorizedErrorResponse(response, "Invalid token");
+                    return false;
+                }
+
                 request.setAttribute("bearerToken", bearerToken);
                 request.setAttribute("userId", validatedToken.getSub());
                 request.setAttribute("token", validatedToken);
@@ -31,9 +38,10 @@ public class BearerTokenInterceptor implements HandlerInterceptor {
                 return false;
             }
         } else {
-            ErrorResponseUtil.writeUnauthorizedErrorResponse(response, "Missing or invalid Authorization header");
+            ErrorResponseUtil.writeUnauthorizedErrorResponse(response, "Unauthorized");
             return false;
         }
         return true;
     }
+
 }

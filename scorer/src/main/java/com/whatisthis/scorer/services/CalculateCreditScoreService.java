@@ -2,7 +2,7 @@ package com.whatisthis.scorer.services;
 
 import com.whatisthis.scorer.model.dto.IncomeScore;
 import com.whatisthis.scorer.model.dto.DebtScore;
-import com.whatisthis.scorer.model.dto.PropertyScore;
+import com.whatisthis.scorer.model.dto.AssetScore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,17 +13,17 @@ public class CalculateCreditScoreService {
     @Autowired
     private CalculateDebtScoreService calculateDebtScoreService;
     @Autowired
-    private CalculatePropertyScoreService calculatePropertyScoreService;
+    private CalculateAssetsScoreService calculateAssetsScoreService;
 
     public int execute(
             double income,
             double debt,
-            double propertyValue
+            double assetsValue
     ) {
         IncomeScore incomeScore = this.calculateIncomeScoreService.calculate(income);
         DebtScore debtScore = this.calculateDebtScoreService.calculate(income, debt);
-        PropertyScore propertyScore = this.calculatePropertyScoreService.calculate(propertyValue);
+        AssetScore assetScore = this.calculateAssetsScoreService.calculate(assetsValue);
 
-        return incomeScore.getScore() + debtScore.getScore() + propertyScore.getScore();
+        return incomeScore.getScore() + debtScore.getScore() + assetScore.getScore();
     }
 }

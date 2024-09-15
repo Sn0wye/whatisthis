@@ -35,7 +35,7 @@ public class ScoreConsumer {
             int creditScore = calculateCreditScoreService.execute(
                     score.getIncome(),
                     score.getDebt(),
-                    score.getPropertyValue()
+                    score.getAssetsValue()
             );
 
             score.setCreditScore(creditScore);

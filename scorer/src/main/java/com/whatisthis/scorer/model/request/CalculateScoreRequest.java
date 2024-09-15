@@ -1,6 +1,6 @@
 package com.whatisthis.scorer.model.request;
 
-public record OnboardingRequest(
+public record CalculateScoreRequest(
         float income,
         float debt,
         float assetsValue

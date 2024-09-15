@@ -21,7 +21,7 @@ public class OnboardingController {
     @Autowired
     private ScoreRepository scoreRepository;
 
-    @PostMapping("/onboarding")
+    @PostMapping("/score/onboarding")
     public ResponseEntity<OnboardingResponse> onboarding(HttpServletRequest request, @RequestBody OnboardingRequest body) {
         String userId = request.getAttribute("userId").toString();
 
@@ -40,14 +40,14 @@ public class OnboardingController {
         int creditScore = calculateCreditScoreService.execute(
                 body.income(),
                 body.debt(),
-                body.propertyValue()
+                body.assetsValue()
         );
 
         Score newScore = new Score();
         newScore.setUserId(userId);
         newScore.setIncome(body.income());
         newScore.setDebt(body.debt());
-        newScore.setPropertyValue(body.propertyValue());
+        newScore.setAssetsValue(body.assetsValue());
         newScore.setCreditScore(creditScore);
         scoreRepository.save(newScore);
 
