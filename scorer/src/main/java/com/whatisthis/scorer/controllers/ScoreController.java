@@ -7,12 +7,15 @@ import com.whatisthis.scorer.model.response.ScoreResponse;
 import com.whatisthis.scorer.repositories.ScoreRepository;
 import com.whatisthis.scorer.services.CalculateCreditScoreService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
 public class ScoreController {
 
     @Autowired
@@ -22,20 +25,21 @@ public class ScoreController {
     private CalculateCreditScoreService calculateCreditScoreService;
 
     @PostMapping("/score/calculate")
-    public ResponseEntity<ScoreResponse> calculateScore(HttpServletRequest request, @RequestBody CalculateScoreRequest body) {
+    public ResponseEntity<ScoreResponse> calculateScore(HttpServletRequest request, @Valid @RequestBody CalculateScoreRequest body) {
         String userId = request.getAttribute("userId").toString();
 
         int creditScore = calculateCreditScoreService.execute(
-                body.income(),
-                body.debt(),
-                body.assetsValue()
+                body.incomeCents(),
+                body.debtCents(),
+                body.assetsValueCents()
         );
 
-        Score score = new Score();
+        Score score = scoreRepository.findByUserId(userId).orElseGet(Score::new);
+
         score.setUserId(userId);
-        score.setIncome(body.income());
-        score.setDebt(body.debt());
-        score.setAssetsValue(body.assetsValue());
+        score.setIncome(body.incomeCents());
+        score.setDebt(body.debtCents());
+        score.setAssetsValue(body.assetsValueCents());
         score.setCreditScore(creditScore);
 
         scoreRepository.save(score);
@@ -48,7 +52,7 @@ public class ScoreController {
     }
 
     @PostMapping("/score/update")
-    public ResponseEntity<ScoreResponse> updateScore(HttpServletRequest request, @RequestBody UpdateScoreRequest body) {
+    public ResponseEntity<ScoreResponse> updateScore(HttpServletRequest request, @Valid @RequestBody UpdateScoreRequest body) {
         String userId = request.getAttribute("userId").toString();
 
         Score existingScore = scoreRepository.findByUserId(userId).orElse(null);
@@ -57,9 +61,9 @@ public class ScoreController {
             return ResponseEntity.notFound().build();
         }
 
-        existingScore.setIncome(body.income());
-        existingScore.setDebt(body.debt());
-        existingScore.setAssetsValue(body.assetsValue());
+        existingScore.setIncome(body.incomeCents());
+        existingScore.setDebt(body.debtCents());
+        existingScore.setAssetsValue(body.assetsValueCents());
 
         int creditScore = calculateCreditScoreService.execute(
                 existingScore.getIncome(),

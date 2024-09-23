@@ -38,16 +38,16 @@ public class OnboardingController {
         }
 
         int creditScore = calculateCreditScoreService.execute(
-                body.income(),
-                body.debt(),
-                body.assetsValue()
+                body.incomeCents(),
+                body.debtCents(),
+                body.assetsValueCents()
         );
 
         Score newScore = new Score();
         newScore.setUserId(userId);
-        newScore.setIncome(body.income());
-        newScore.setDebt(body.debt());
-        newScore.setAssetsValue(body.assetsValue());
+        newScore.setIncome(body.incomeCents());
+        newScore.setDebt(body.debtCents());
+        newScore.setAssetsValue(body.assetsValueCents());
         newScore.setCreditScore(creditScore);
         scoreRepository.save(newScore);
 

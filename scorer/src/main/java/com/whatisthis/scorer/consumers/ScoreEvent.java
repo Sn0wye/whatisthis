@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public record ScoreEvent(
         String userId,
-        double income,
-        double debt,
-        double assetsValue
+        int income,
+        int debt,
+        int assetsValue
 ) {
     public ScoreEvent(String json) throws JsonProcessingException {
         this(new ObjectMapper().readValue(json, ScoreEvent.class));

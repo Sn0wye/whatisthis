@@ -2,13 +2,18 @@ package com.whatisthis.scorer.entities;
 
 import com.whatisthis.scorer.consumers.ScoreEvent;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.id.uuid.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "scores")
 public class Score {
@@ -17,13 +22,16 @@ public class Score {
     @GenericGenerator(name = "UUID", type = UuidGenerator.class)
     private UUID id;
     private String userId;
-    private double income;
-    private double debt;
-    private double assetsValue;
+    private long income;
+    private long debt;
+    private long assetsValue;
     private int creditScore = 0;
 
-    public Score() {
-    }
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     public Score(ScoreEvent scoreEvent) {
         this.userId = scoreEvent.userId();
@@ -32,47 +40,14 @@ public class Score {
         this.assetsValue = scoreEvent.assetsValue();
     }
 
-    public UUID getId() {
-        return id;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public double getIncome() {
-        return income;
-    }
-
-    public void setIncome(double income) {
-        this.income = income;
-    }
-
-    public double getDebt() {
-        return debt;
-    }
-
-    public void setDebt(double debt) {
-        this.debt = debt;
-    }
-
-    public double getAssetsValue() {
-        return assetsValue;
-    }
-
-    public void setAssetsValue(double assetsValue) {
-        this.assetsValue = assetsValue;
-    }
-
-    public int getCreditScore() {
-        return creditScore;
-    }
-
-    public void setCreditScore(int creditScore) {
-        this.creditScore = creditScore;
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

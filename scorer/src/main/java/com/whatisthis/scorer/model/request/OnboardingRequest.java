@@ -1,8 +1,8 @@
 package com.whatisthis.scorer.model.request;
 
 public record OnboardingRequest(
-        float income,
-        float debt,
-        float assetsValue
+        int incomeCents,
+        int debtCents,
+        int assetsValueCents
 ) {
 }

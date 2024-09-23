@@ -16,9 +16,9 @@ public class CalculateCreditScoreService {
     private CalculateAssetsScoreService calculateAssetsScoreService;
 
     public int execute(
-            double income,
-            double debt,
-            double assetsValue
+            long income,
+            long debt,
+            long assetsValue
     ) {
         IncomeScore incomeScore = this.calculateIncomeScoreService.calculate(income);
         DebtScore debtScore = this.calculateDebtScoreService.calculate(income, debt);
