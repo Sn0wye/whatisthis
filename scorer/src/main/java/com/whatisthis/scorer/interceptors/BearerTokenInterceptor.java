@@ -9,6 +9,10 @@ import com.whatisthis.scorer.services.GrpcAuthService;
 import com.whatisthis.scorer.utils.ErrorResponseUtil;
 import pb.Auth;
 
+// This is an overengineered way to validate JWT tokens.
+// The token is validated by a gRPC service.
+// Ideally, the token should be validated by the application itself.
+// This will be this way until I find some use for the Authentication service gRPC :D
 @Component
 public class BearerTokenInterceptor implements HandlerInterceptor {
 
