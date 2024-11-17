@@ -66,8 +66,20 @@ services:
       - postgres
       - rabbitmq
       - authentication
-    env_file:
-      - ./scorer/.env
+    networks:
+      - microservices-network
+
+  # Loan Service
+  loan:
+    build:
+      context: ./loan
+    image: whatisthis-loan
+    container_name: whatisthis-loan
+    depends_on:
+      - postgres
+      - rabbitmq
+      - authentication
+      - scorer
     networks:
       - microservices-network
 
