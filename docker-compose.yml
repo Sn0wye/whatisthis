@@ -41,6 +41,7 @@ services:
     depends_on:
       - authentication
       - scorer
+      - loan
 
   # Authentication Service
   authentication:
