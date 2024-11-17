@@ -69,7 +69,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Using reverse proxy
+// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

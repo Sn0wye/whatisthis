@@ -1,4 +1,5 @@
 using Grpc.Net.Client;
+using Microsoft.Extensions.Configuration;
 using Pb;
 
 namespace Loan.Infrastructure.Adapters;
@@ -7,9 +8,15 @@ public class UsersGRPCAdapter: IUsersGRPCAdapter
 {
     private readonly UserService.UserServiceClient _client;
 
-    public UsersGRPCAdapter()
+    public UsersGRPCAdapter(IConfiguration configuration)
     {
-        var channel = GrpcChannel.ForAddress("http://127.0.0.1:50050");
+        var address = configuration.GetConnectionString("UsersGrpc");
+        Console.WriteLine($"GRPC Address: {address}");
+        if (string.IsNullOrWhiteSpace(address))
+        {
+            throw new InvalidOperationException("Configuration 'ConnectionStrings:UsersGrpc' is not set or is empty.");
+        }
+        var channel = GrpcChannel.ForAddress(address);
         _client = new UserService.UserServiceClient(channel);
     }
     

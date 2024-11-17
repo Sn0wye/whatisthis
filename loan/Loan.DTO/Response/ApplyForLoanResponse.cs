@@ -4,7 +4,7 @@ namespace Loan.DTO.Response;
 
 public class ApplyForLoanResponse
 {
-    public LoanApplicationStatus ApplicationStatus { get; set; }
+    public LoanApplicationStatus Status { get; set; }
     public required string Message { get; set; }
     public double Amount { get; set; }
     public int Term { get; set; }

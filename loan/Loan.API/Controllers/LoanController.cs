@@ -10,7 +10,7 @@ namespace Loan.API.Controllers;
 [Route("loan")]
 public class LoanController(ILoanService loanService) : ControllerBase
 {
-    [HttpPost("/apply")]
+    [HttpPost("apply")]
     public async Task<ActionResult<ApplyForLoanResponse>> ApplyForLoan([FromBody] ApplyForLoanRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -32,27 +32,27 @@ public class LoanController(ILoanService loanService) : ControllerBase
                 ? "Loan approved :)"
                 : "Loan rejected, unfortunately we don't have a better option for you at the moment :(";
 
-            return new ApplyForLoanResponse
+            return Ok(new ApplyForLoanResponse
             {
                 Message = message,
-                ApplicationStatus = application.LoanApplication.Status,
+                Status = application.LoanApplication.Status,
                 Amount = application.LoanApplication.Amount,
                 Term = application.LoanApplication.Term,
                 SuggestedLoan = null
-            };
+            });
         }
 
         message = application.LoanApplication.Status == LoanApplicationStatus.APPROVED
             ? "Loan approved, but we have a better option for you!"
             : "Loan rejected, but we have a better option for you!";
 
-        return new ApplyForLoanResponse
+        return Ok(new ApplyForLoanResponse
         {
             Message = message,
-            ApplicationStatus = application.LoanApplication.Status,
+            Status = application.LoanApplication.Status,
             Amount = application.LoanApplication.Amount,
             Term = application.LoanApplication.Term,
             SuggestedLoan = application.SuggestedLoan
-        };
+        });
     }
 }
