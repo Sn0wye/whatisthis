@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL DB
   postgres:
@@ -12,8 +10,14 @@ services:
       - '5432:5432'
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
     networks:
       - microservices-network
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'whatisthis']
+      interval: 1s
+      timeout: 1s
+      retries: 3
 
   # RabbitMQ Message Broker
   rabbitmq:
@@ -22,11 +26,19 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: whatisthis
       RABBITMQ_DEFAULT_PASS: whatisthis
+    volumes:
+      - ./init/rabbitmq-definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./init/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     ports:
       - '5672:5672'
       - '15672:15672'
     networks:
       - microservices-network
+    healthcheck:
+      test: ['CMD', 'rabbitmqctl', 'status']
+      interval: 1s
+      timeout: 1s
+      retries: 3
 
   # Proxy Server
   nginx:
@@ -53,7 +65,10 @@ services:
       # Exposing gRPC for now because nginx refuses to work
       - '50050:50050'
     depends_on:
-      - postgres
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     networks:
       - microservices-network
 
@@ -64,9 +79,12 @@ services:
     image: whatisthis-scorer
     container_name: whatisthis-scorer
     depends_on:
-      - postgres
-      - rabbitmq
-      - authentication
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      authentication:
+        condition: service_started
     networks:
       - microservices-network
 
@@ -77,10 +95,14 @@ services:
     image: whatisthis-loan
     container_name: whatisthis-loan
     depends_on:
-      - postgres
-      - rabbitmq
-      - authentication
-      - scorer
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      authentication:
+        condition: service_started
+      scorer:
+        condition: service_started
     networks:
       - microservices-network
 
