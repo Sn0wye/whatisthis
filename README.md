@@ -6,11 +6,11 @@ TLDR; There will be A LOT of overengineering, but that's the point. The goal is 
 
 ## Services
 
-| **Service Name** | **Description**                                                                                                     | **Language** | **Framework** | **Ports**                 |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------- | ------------ | ------------- | ------------------------- |
-| Helium           | Helium is lightweight and foundational, just like authentication, which provides the basis for all interactions.    | Go           | Fiber         | 8080 (HTTP), 50050 (gRPC) |
-| Carbon           | Carbon is a fundamental building block, symbolizing the core calculations and essential scoring functions.          | Java         | Spring Boot   | 8081 (HTTP)               |
-| Oxygen           | Oxygen is life-sustaining, representing the essential and enabling nature of loans in fostering growth and support. | C#           | .NET          | 8082 (HTTP)               |
+| **Service Name** | **Responsability**             | **Description**                                                                                                     | **Language** | **Framework** | **Ports**                 |
+| ---------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------ | ------------- | ------------------------- |
+| Helium           | User authentication management | Helium is lightweight and foundational, just like authentication, which provides the basis for all interactions.    | Go           | Fiber         | 8080 (HTTP), 50050 (gRPC) |
+| Carbon           | User scoring and evaluation    | Carbon is a fundamental building block, symbolizing the core calculations and essential scoring functions.          | Java         | Spring Boot   | 8081 (HTTP)               |
+| Oxygen           | Loan operations and servicing  | Oxygen is life-sustaining, representing the essential and enabling nature of loans in fostering growth and support. | C#           | .NET          | 8082 (HTTP)               |
 
 ## Infrastructure
 
