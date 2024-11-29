@@ -3,6 +3,9 @@ package com.whatisthis.scorer.services;
 import com.whatisthis.scorer.model.dto.IncomeScore;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CalculateIncomeScoreServiceTest {
@@ -12,7 +15,7 @@ class CalculateIncomeScoreServiceTest {
     @Test
     void shouldReturnHighIncomeScoreForIncomeAboveHighThreshold() {
         // Given
-        long income = 150_000_00L; // 150K in cents
+        BigDecimal income = new BigDecimal("150000"); // 150K (income threshold)
 
         // When
         IncomeScore result = service.calculate(income);
@@ -24,14 +27,15 @@ class CalculateIncomeScoreServiceTest {
     @Test
     void shouldReturnProportionalScoreForMediumIncomeRange() {
         // Given
-        long income = 75_000_00L; // 75K in cents
+        BigDecimal income = new BigDecimal("75000"); // 75K
 
         // When
         IncomeScore result = service.calculate(income);
 
         // Proportional score calculation
-        double proportion = (double) (income - 50_000_00L) / (100_000_00L - 50_000_00L);
-        int expectedScore = (int) (150 + proportion * (300 - 150));
+        BigDecimal proportion = income.subtract(new BigDecimal("50000"))
+                .divide(new BigDecimal("100000").subtract(new BigDecimal("50000")), 4, RoundingMode.FLOOR);
+        int expectedScore = 150 + proportion.multiply(new BigDecimal(300 - 150)).intValue();
 
         // Then
         assertThat(result.getScore()).isEqualTo(expectedScore);
@@ -40,14 +44,14 @@ class CalculateIncomeScoreServiceTest {
     @Test
     void shouldReturnProportionalScoreForLowIncomeRange() {
         // Given
-        long income = 25_000_00L; // 25K in cents
+        BigDecimal income = new BigDecimal("25000"); // 25K
 
         // When
         IncomeScore result = service.calculate(income);
 
         // Proportional score calculation
-        double proportion = (double) income / 50_000_00L;
-        int expectedScore = (int) (proportion * 150);
+        BigDecimal proportion = income.divide(new BigDecimal("50000"), 4, RoundingMode.FLOOR);
+        int expectedScore = proportion.multiply(new BigDecimal(150)).intValue();
 
         // Then
         assertThat(result.getScore()).isEqualTo(expectedScore);
@@ -56,7 +60,7 @@ class CalculateIncomeScoreServiceTest {
     @Test
     void shouldReturnLowIncomeScoreForZeroIncome() {
         // Given
-        long income = 0;
+        BigDecimal income = new BigDecimal("0");
 
         // When
         IncomeScore result = service.calculate(income);
@@ -68,7 +72,7 @@ class CalculateIncomeScoreServiceTest {
     @Test
     void shouldReturnBoundaryScoreForMediumIncomeThreshold() {
         // Given
-        long income = 50_000_00L; // 50K in cents (medium income threshold)
+        BigDecimal income = new BigDecimal("50000"); // Medium income threshold
 
         // When
         IncomeScore result = service.calculate(income);
@@ -80,7 +84,7 @@ class CalculateIncomeScoreServiceTest {
     @Test
     void shouldReturnBoundaryScoreForHighIncomeThreshold() {
         // Given
-        long income = 100_000_00L; // 100K in cents (high income threshold)
+        BigDecimal income = new BigDecimal("100000"); // High income threshold
 
         // When
         IncomeScore result = service.calculate(income);
@@ -92,14 +96,14 @@ class CalculateIncomeScoreServiceTest {
     @Test
     void shouldHandleIncomeJustBelowMediumThreshold() {
         // Given
-        long income = 49_999_99L; // Just below medium income threshold
+        BigDecimal income = new BigDecimal("49999.99"); // Just below medium income threshold
 
         // When
         IncomeScore result = service.calculate(income);
 
         // Proportional score calculation
-        double proportion = (double) income / 50_000_00L;
-        int expectedScore = (int) (proportion * 150);
+        BigDecimal proportion = income.divide(new BigDecimal("50000"), 4, RoundingMode.FLOOR);
+        int expectedScore = proportion.multiply(new BigDecimal(150)).intValue();
 
         // Then
         assertThat(result.getScore()).isEqualTo(expectedScore);
@@ -108,14 +112,15 @@ class CalculateIncomeScoreServiceTest {
     @Test
     void shouldHandleIncomeJustBelowHighThreshold() {
         // Given
-        long income = 99_999_99L; // Just below high income threshold
+        BigDecimal income = new BigDecimal("99999.99"); // Just below high income threshold
 
         // When
         IncomeScore result = service.calculate(income);
 
         // Proportional score calculation
-        double proportion = (double) (income - 50_000_00L) / (100_000_00L - 50_000_00L);
-        int expectedScore = (int) (150 + proportion * (300 - 150));
+        BigDecimal proportion = income.subtract(new BigDecimal("50000"))
+                .divide(new BigDecimal("100000").subtract(new BigDecimal("50000")), 4, RoundingMode.FLOOR);
+        int expectedScore = 150 + proportion.multiply(new BigDecimal(300 - 150)).intValue();
 
         // Then
         assertThat(result.getScore()).isEqualTo(expectedScore);

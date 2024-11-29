@@ -3,6 +3,9 @@ package com.whatisthis.scorer.services;
 import com.whatisthis.scorer.model.dto.AssetScore;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -12,33 +15,34 @@ class CalculateAssetsScoreServiceTest {
 
     @Test
     void shouldReturnHighAssetsScoreForExpensiveAssets() {
-        long assetsValue = 600_000_00L; // Above the expensive assets threshold
+        BigDecimal assetsValue = new BigDecimal("600000"); // Above the expensive assets threshold
         AssetScore result = service.calculate(assetsValue);
         assertThat(result.getScore()).isEqualTo(300);
     }
 
     @Test
     void shouldReturnMediumAssetsScoreWithinMediumRange() {
-        long assetsValue = 350_000_00L; // Between 200K and 500K
+        BigDecimal assetsValue = new BigDecimal("350000"); // Between 200K and 500K
         AssetScore result = service.calculate(assetsValue);
 
         // Proportionally calculated score
-        double proportion = (double) (assetsValue - 200_000_00L) / (500_000_00L - 200_000_00L);
-        int expectedScore = (int) (150 + proportion * (300 - 150));
+        BigDecimal proportion = assetsValue.subtract(new BigDecimal("200000"))
+                .divide(new BigDecimal("500000").subtract(new BigDecimal("200000")), 4, RoundingMode.FLOOR);
+        int expectedScore = 150 + proportion.multiply(new BigDecimal(300 - 150)).intValue();
 
         assertThat(result.getScore()).isEqualTo(expectedScore);
     }
 
     @Test
     void shouldReturnLowAssetsScoreForNoAssets() {
-        long assetsValue = 0; // No assets
+        BigDecimal assetsValue = new BigDecimal("0"); // No assets
         AssetScore result = service.calculate(assetsValue);
         assertThat(result.getScore()).isEqualTo(0);
     }
 
     @Test
     void shouldReturnZeroForNegativeAssetsValue() {
-        long assetsValue = -1; // Negative assets
+        BigDecimal assetsValue = new BigDecimal("-1"); // Negative assets
 
         assertThatThrownBy(() -> service.calculate(assetsValue))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -47,19 +51,19 @@ class CalculateAssetsScoreServiceTest {
 
     @Test
     void shouldReturnScoreProportionalToLowAssetsValue() {
-        long assetsValue = 100_000_00L; // Below 200K threshold
+        BigDecimal assetsValue = new BigDecimal("100000"); // Below 200K threshold
         AssetScore result = service.calculate(assetsValue);
 
         // Proportionally calculated score
-        double proportion = (double) assetsValue / 200_000_00L;
-        int expectedScore = (int) (proportion * 150);
+        BigDecimal proportion = assetsValue.divide(new BigDecimal("200000"), 4, RoundingMode.FLOOR);
+        int expectedScore = proportion.multiply(new BigDecimal(150)).intValue();
 
         assertThat(result.getScore()).isEqualTo(expectedScore);
     }
 
     @Test
     void shouldReturnMediumScoreForBoundaryOfMediumAssets() {
-        long assetsValue = 200_000_00L; // Exactly on the medium threshold
+        BigDecimal assetsValue = new BigDecimal("200000"); // Exactly on the medium threshold
         AssetScore result = service.calculate(assetsValue);
 
         assertThat(result.getScore()).isEqualTo(150); // Lower bound of medium range
@@ -67,7 +71,7 @@ class CalculateAssetsScoreServiceTest {
 
     @Test
     void shouldReturnHighScoreForBoundaryOfExpensiveAssets() {
-        long assetsValue = 500_000_00L; // Exactly on the expensive threshold
+        BigDecimal assetsValue = new BigDecimal("500000"); // Exactly on the expensive threshold
         AssetScore result = service.calculate(assetsValue);
 
         assertThat(result.getScore()).isEqualTo(300); // Upper bound of medium range

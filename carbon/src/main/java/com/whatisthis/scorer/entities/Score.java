@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.id.uuid.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -22,9 +23,9 @@ public class Score {
     @GenericGenerator(name = "UUID", type = UuidGenerator.class)
     private UUID id;
     private String userId;
-    private long income;
-    private long debt;
-    private long assetsValue;
+    private BigDecimal income;
+    private BigDecimal debt;
+    private BigDecimal assetsValue;
     private int creditScore = 0;
 
     @Column(name = "created_at", updatable = false)
@@ -35,9 +36,9 @@ public class Score {
 
     public Score(ScoreEvent scoreEvent) {
         this.userId = scoreEvent.userId();
-        this.income = scoreEvent.income();
-        this.debt = scoreEvent.debt();
-        this.assetsValue = scoreEvent.assetsValue();
+        this.income = BigDecimal.valueOf(scoreEvent.income());
+        this.debt = BigDecimal.valueOf(scoreEvent.debt());
+        this.assetsValue = BigDecimal.valueOf(scoreEvent.assetsValue());
     }
 
     @PrePersist

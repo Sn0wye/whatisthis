@@ -3,6 +3,8 @@ package com.whatisthis.scorer.services;
 import com.whatisthis.scorer.model.dto.DebtScore;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -13,8 +15,8 @@ class CalculateDebtScoreServiceTest {
     @Test
     void shouldReturnHighRatioScoreForLowDebtRatio() {
         // Given
-        long income = 100_000_00L; // 100K in cents
-        long debt = 10_000_00L;    // 10K in cents (10% ratio)
+        BigDecimal income = BigDecimal.valueOf(100_000.00); // 100K
+        BigDecimal debt = BigDecimal.valueOf(10_000.00);    // 10K (10% ratio)
 
         // When
         DebtScore result = service.calculate(income, debt);
@@ -26,8 +28,8 @@ class CalculateDebtScoreServiceTest {
     @Test
     void shouldReturnProportionalScoreForMediumDebtRatio() {
         // Given
-        long income = 100_000_00L; // 100K in cents
-        long debt = 30_000_00L;    // 30K in cents (30% ratio)
+        BigDecimal income = BigDecimal.valueOf(100_000.00); // 100K
+        BigDecimal debt = BigDecimal.valueOf(30_000.00);    // 30K (30% ratio)
 
         // When
         DebtScore result = service.calculate(income, debt);
@@ -44,8 +46,8 @@ class CalculateDebtScoreServiceTest {
     @Test
     void shouldReturnLowRatioScoreForHighDebtRatio() {
         // Given
-        long income = 100_000_00L; // 100K in cents
-        long debt = 80_000_00L;    // 80K in cents (80% ratio)
+        BigDecimal income = BigDecimal.valueOf(100_000.00); // 100K
+        BigDecimal debt = BigDecimal.valueOf(80_000.00);    // 80K (80% ratio)
 
         // When
         DebtScore result = service.calculate(income, debt);
@@ -62,8 +64,8 @@ class CalculateDebtScoreServiceTest {
     @Test
     void shouldHandleDebtRatioAtLowThresholdBoundary() {
         // Given
-        long income = 100_000_00L; // 100K in cents
-        long debt = 20_000_00L;    // 20K in cents (20% ratio)
+        BigDecimal income = BigDecimal.valueOf(100_000.00); // 100K
+        BigDecimal debt = BigDecimal.valueOf(20_000.00);    // 20K (20% ratio)
 
         // When
         DebtScore result = service.calculate(income, debt);
@@ -75,8 +77,8 @@ class CalculateDebtScoreServiceTest {
     @Test
     void shouldHandleDebtRatioAtMediumThresholdBoundary() {
         // Given
-        long income = 100_000_00L; // 100K in cents
-        long debt = 40_000_00L;    // 40K in cents (40% ratio)
+        BigDecimal income = BigDecimal.valueOf(100_000.00); // 100K
+        BigDecimal debt = BigDecimal.valueOf(40_000.00);    // 40K (40% ratio)
 
         // When
         DebtScore result = service.calculate(income, debt);
@@ -88,8 +90,8 @@ class CalculateDebtScoreServiceTest {
     @Test
     void shouldThrowExceptionWhenIncomeIsZero() {
         // Given
-        long income = 0;
-        long debt = 10_000_00L; // 10K in cents
+        BigDecimal income = BigDecimal.ZERO;
+        BigDecimal debt = BigDecimal.valueOf(10_000.00); // 10K
 
         // Then
         assertThatThrownBy(() -> service.calculate(income, debt))
@@ -100,8 +102,8 @@ class CalculateDebtScoreServiceTest {
     @Test
     void shouldReturnHighRatioScoreForZeroDebt() {
         // Given
-        long income = 100_000_00L; // 100K in cents
-        long debt = 0;             // No debt (0% ratio)
+        BigDecimal income = BigDecimal.valueOf(100_000.00); // 100K
+        BigDecimal debt = BigDecimal.ZERO;                  // No debt (0% ratio)
 
         // When
         DebtScore result = service.calculate(income, debt);

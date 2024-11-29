@@ -3,8 +3,11 @@ package com.whatisthis.scorer.services;
 import com.whatisthis.scorer.model.dto.IncomeScore;
 import com.whatisthis.scorer.model.dto.DebtScore;
 import com.whatisthis.scorer.model.dto.AssetScore;
+import com.whatisthis.scorer.model.request.CalculateScoreRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 public class CalculateCreditScoreService {
@@ -16,9 +19,9 @@ public class CalculateCreditScoreService {
     private CalculateAssetsScoreService calculateAssetsScoreService;
 
     public int execute(
-            long income,
-            long debt,
-            long assetsValue
+            BigDecimal income,
+            BigDecimal debt,
+            BigDecimal assetsValue
     ) {
         IncomeScore incomeScore = this.calculateIncomeScoreService.calculate(income);
         DebtScore debtScore = this.calculateDebtScoreService.calculate(income, debt);

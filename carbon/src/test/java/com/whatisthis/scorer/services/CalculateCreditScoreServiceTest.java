@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -34,9 +36,9 @@ class CalculateCreditScoreServiceTest {
     @Test
     void shouldReturnSumOfAllScores() {
         // Given
-        long income = 50_000_00L; // 50K in cents
-        long debt = 20_000_00L; // 20K in cents
-        long assetsValue = 300_000_00L; // 300K in cents
+        BigDecimal income = BigDecimal.valueOf(50_000);
+        BigDecimal debt = BigDecimal.valueOf(20_000);
+        BigDecimal assetsValue = BigDecimal.valueOf(300_000);
 
         // Mocking service calls
         when(calculateIncomeScoreService.calculate(income)).thenReturn(new IncomeScore(200));
@@ -53,9 +55,9 @@ class CalculateCreditScoreServiceTest {
     @Test
     void shouldHandleZeroValuesCorrectly() {
         // Given
-        long income = 0;
-        long debt = 0;
-        long assetsValue = 0;
+        BigDecimal income = BigDecimal.ZERO;
+        BigDecimal debt = BigDecimal.ZERO;
+        BigDecimal assetsValue = BigDecimal.ZERO;
 
         // Mocking service calls
         when(calculateIncomeScoreService.calculate(income)).thenReturn(new IncomeScore(0));
@@ -72,9 +74,9 @@ class CalculateCreditScoreServiceTest {
     @Test
     void shouldCalculateCorrectlyWhenIncomeScoreDominates() {
         // Given
-        long income = 200_000_00L;
-        long debt = 10_000_00L;
-        long assetsValue = 50_000_00L;
+        BigDecimal income = BigDecimal.valueOf(200_000);
+        BigDecimal debt = BigDecimal.valueOf(10_000);
+        BigDecimal assetsValue = BigDecimal.valueOf(50_000);
 
         // Mocking service calls
         when(calculateIncomeScoreService.calculate(income)).thenReturn(new IncomeScore(500));

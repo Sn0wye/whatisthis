@@ -21,6 +21,15 @@ public class BearerTokenInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String requestUri = request.getRequestURI();
+
+        // Ignore Swagger routes from token validation
+        if (requestUri.startsWith("/swagger") ||
+                requestUri.startsWith("/v3/api-docs") ||
+                requestUri.equals("/swagger.html")) {
+            return true;
+        }
+
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String bearerToken = authorizationHeader.substring(7); // Remove "Bearer " prefix
