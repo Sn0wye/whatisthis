@@ -1,0 +1,144 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Loan.API",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/loan/apply": {
+      "post": {
+        "tags": [
+          "Loan"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyForLoanRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyForLoanRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyForLoanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyForLoanResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyForLoanResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyForLoanResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApplyForLoanRequest": {
+        "required": [
+          "loanAmount",
+          "term"
+        ],
+        "type": "object",
+        "properties": {
+          "loanAmount": {
+            "minimum": 300,
+            "type": "number",
+            "format": "double"
+          },
+          "term": {
+            "maximum": 12,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApplyForLoanResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/LoanApplicationStatus"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "term": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "suggestedLoan": {
+            "$ref": "#/components/schemas/LoanApplication"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoanApplication": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/LoanApplicationStatus"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "term": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoanApplicationStatus": {
+        "enum": [
+          "PENDING",
+          "APPROVED",
+          "REJECTED"
+        ],
+        "type": "string"
+      }
+    }
+  }
+}

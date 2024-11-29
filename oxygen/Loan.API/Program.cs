@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using Loan.API.Extensions;
 using Loan.Infrastructure;
 using Loan.Infrastructure.Adapters;
 using Loan.Repository;
@@ -13,11 +14,35 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// builder.Services.AddSwaggerGen(options =>
+// {
+//     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+//     {
+//         Name = "Authorization",
+//         Type = SecuritySchemeType.Http,
+//         Scheme = "Bearer",
+//         BearerFormat = "JWT",
+//         Description =
+//             "Enter 'Bearer' [space] and your token in the text input below.\n\nExample: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
+//     });
+//
+//     options.AddSecurityRequirement(new OpenApiSecurityRequirement
+//     {
+//         {
+//             new OpenApiSecurityScheme
+//             {
+//                 Reference = new OpenApiReference
+//                 {
+//                     Type = ReferenceType.SecurityScheme,
+//                     Id = "Bearer"
+//                 }
+//             },
+//             Array.Empty<string>()
+//         }
+//     });
+// });
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 builder.Services.AddDbContext<ApplicationDbContext>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -59,14 +84,15 @@ builder.Services.AddScoped<ICreditScoreAdapter, CreditScoreAdapter>();
 // Services
 builder.Services.AddScoped<ILoanService, LoanService>();
 
-
 var app = builder.Build();
+app.Services.SaveSwaggerJson();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    
 }
 
 // Using reverse proxy
