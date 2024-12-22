@@ -58,7 +58,7 @@ services:
   # Authentication Service
   authentication:
     build:
-      context: ./authentication
+      context: ./helium
     image: whatisthis-authentication
     container_name: whatisthis-authentication
     ports:
@@ -75,7 +75,7 @@ services:
   # Scorer Service
   scorer:
     build:
-      context: ./scorer
+      context: ./carbon
     image: whatisthis-scorer
     container_name: whatisthis-scorer
     depends_on:
@@ -91,7 +91,7 @@ services:
   # Loan Service
   loan:
     build:
-      context: ./loan
+      context: ./oxygen
     image: whatisthis-loan
     container_name: whatisthis-loan
     depends_on:
