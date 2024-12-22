@@ -9,3 +9,9 @@ SELECT 'CREATE DATABASE scorer'
 WHERE NOT EXISTS (
     SELECT FROM pg_database WHERE datname = 'scorer'
 )\gexec
+
+-- Create 'loan' database if it does not exist
+SELECT 'CREATE DATABASE loan'
+WHERE NOT EXISTS (
+    SELECT FROM pg_database WHERE datname = 'loan'
+)\gexec
