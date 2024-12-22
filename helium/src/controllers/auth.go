@@ -39,6 +39,18 @@ func NewAuthController(db *gorm.DB, jwt *jwt.JWT, rmq *messaging.MessagingServic
 	}
 }
 
+// Profile godoc
+//
+//	@Summary		/auth/profile
+//	@Description	Get user profile
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	dto.ProfileResponse					"ProfileResponse"
+//	@Failure		401	{object}	exceptions.UnauthorizedError		"Unauthorized"
+//	@Failure		500	{object}	exceptions.InternalServerError	"Failed to fetch user"
+//	@Security		Bearer
+//	@Router			/auth/profile [get]
 func (s *authController) Profile(c *fiber.Ctx) error {
 	claims := c.Locals("claims").(*jwt.Claims)
 	user := models.User{}
@@ -48,12 +60,33 @@ func (s *authController) Profile(c *fiber.Ctx) error {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return exceptions.Unauthorized(c)
 		}
-		return exceptions.InternalServerError(c, "failed to fetch user")
+		return exceptions.InternalServer(c, "failed to fetch user")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(user)
+	return c.Status(fiber.StatusOK).JSON(dto.ProfileResponse{
+		ID:           user.ID.String(),
+		Name:         user.Name,
+		Username:     user.Username,
+		Email:        user.Email,
+		AnnualIncome: user.AnnualIncome,
+		Debt:         user.Debt,
+		AssetsValue:  user.AssetsValue,
+	})
 }
 
+// Register godoc
+//
+//	@Summary		/auth/register
+//	@Description	Register a new user
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		dto.RegisterRequest	true	"Register Request"
+//	@Success		200		{object}	dto.RegisterResponse
+//	@Failure		400		{object}	exceptions.BadRequestError			"Invalid request body"
+//	@Failure		422		{object}	exceptions.UnprocessableEntityError	"Email already taken"
+//	@Failure		500		{object}	exceptions.InternalServerError	"Failed to hash password OR Failed to marshal data OR Failed to generate JWT token"
+//	@Router			/auth/register [post]
 func (s *authController) Register(c *fiber.Ctx) error {
 	db := s.db
 	body := new(dto.RegisterRequest)
@@ -69,7 +102,7 @@ func (s *authController) Register(c *fiber.Ctx) error {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return exceptions.InternalServerError(c, "failed to hash password")
+		return exceptions.InternalServer(c, "failed to hash password")
 	}
 
 	user = models.User{
@@ -94,21 +127,34 @@ func (s *authController) Register(c *fiber.Ctx) error {
 	jsonData, err := json.Marshal(data)
 
 	if err != nil {
-		return exceptions.InternalServerError(c, "failed to marshal data")
+		return exceptions.InternalServer(c, "failed to marshal data")
 	}
 
 	s.rmq.Produce("calculate-score", string(jsonData))
 
 	token, err := s.GenerateToken(user.ID.String())
 	if err != nil {
-		return exceptions.InternalServerError(c, "failed to generate JWT token")
+		return exceptions.InternalServer(c, "failed to generate JWT token")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"token": token,
+	return c.Status(fiber.StatusOK).JSON(dto.RegisterResponse{
+		Token: token,
 	})
 }
 
+// Login godoc
+//
+//	@Summary		/auth/login
+//	@Description	Login
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		dto.LoginRequest	true	"Login Request"
+//	@Success		200		{object}	dto.LoginResponse
+//	@Failure		400		{object}	exceptions.BadRequestError			"Invalid request body"
+//	@Failure		401		{object}	exceptions.UnauthorizedError		"Wrong email or password"
+//	@Failure		500		{object}	exceptions.InternalServerError	"Failed to generate JWT token"
+//	@Router			/auth/login [post]
 func (s *authController) Login(c *fiber.Ctx) error {
 	db := s.db
 
@@ -129,11 +175,11 @@ func (s *authController) Login(c *fiber.Ctx) error {
 
 	token, err := s.GenerateToken(user.ID.String())
 	if err != nil {
-		return exceptions.InternalServerError(c, "failed to generate JWT token")
+		return exceptions.InternalServer(c, "failed to generate JWT token")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"token": token,
+	return c.Status(fiber.StatusOK).JSON(dto.LoginResponse{
+		Token: token,
 	})
 }
 

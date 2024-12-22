@@ -33,7 +33,7 @@ func JWTMiddleware(conf *viper.Viper, logger *logger.Logger) fiber.Handler {
 			newTokenString, err := j.GenToken(claims.Subject, time.Now().Add(time.Hour*24*90))
 			if err != nil {
 				fmt.Println("Error generating new token")
-				return exceptions.InternalServerError(ctx, err.Error())
+				return exceptions.InternalServer(ctx, err.Error())
 			}
 			ctx.Set("Authorization", "Bearer "+newTokenString)
 		}

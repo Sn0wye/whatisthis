@@ -19,6 +19,7 @@ import (
 	"whatisthis/src/models"
 	"whatisthis/src/routes"
 
+	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/spf13/viper"
@@ -26,6 +27,20 @@ import (
 	"google.golang.org/grpc"
 )
 
+//	@title			Coinly API Reference
+//	@version		1.0.0
+//	@description	The Coinly API is organized around REST. This API has predictable resource-oriented URLs, accepts JSON-encoded request bodies, returns JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.
+
+//	@contact.name	GitHub
+//	@contact.url	https://github.com/Sn0wye/coinly/issues
+
+//	@license.name	GNU General Public License v3.0
+//	@license.url	https://www.gnu.org/licenses/gpl-3.0
+
+// @host		coinly.snowye.dev
+// @BasePath	/
+
+// @Schemes	https
 func main() {
 	flag.Parse()
 
@@ -89,6 +104,15 @@ func startHTTPServer(conf *viper.Viper, logger *logger.Logger, rmq *messaging.Me
 			})
 		},
 	})
+
+	app.Use(swagger.New(
+		swagger.Config{
+			BasePath: "/",
+			FilePath: "./swagger.json",
+			Path:     "swagger",
+			Title:    "Swagger API Docs",
+		},
+	))
 
 	// CORS middleware
 	app.Use(cors.New(cors.Config{
