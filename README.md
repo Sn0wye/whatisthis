@@ -1,4 +1,4 @@
-# What is This?
+# Coinly
 
 This repository serves as a learning project to create and deploy multiple microservices using different technologies and languages, with a focus on enabling communication between them.
 
@@ -39,6 +39,13 @@ This project is a learning experience where I explore different technologies and
 
 # Running the Project
 
+Make sure you have installed:
+
+- Docker
+- Docker Compose
+- .NET SDK
+- Node.js
+
 To run the project, first you need to have Docker and Docker Compose installed on your machine. Then, follow these steps:
 
 1. Clone the repository:
@@ -58,7 +65,7 @@ cd whatisthis
 3. Start the project:
 
 ```bash
-docker-compose up -d
+make start
 ```
 
 The required databases and queues will be created, and the services will be started.
