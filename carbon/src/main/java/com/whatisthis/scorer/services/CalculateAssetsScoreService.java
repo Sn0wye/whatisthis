@@ -1,5 +1,6 @@
 package com.whatisthis.scorer.services;
 
+import com.whatisthis.scorer.errors.ScoreCalculationException;
 import com.whatisthis.scorer.model.dto.AssetScore;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class CalculateAssetsScoreService {
     public AssetScore calculate(BigDecimal assetsValue) {
         // Ensure that the input value is not negative
         if (assetsValue.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Assets value cannot be negative.");
+            throw new ScoreCalculationException("Assets value cannot be negative.");
         }
 
         // Check if assets value is greater than the expensive assets threshold

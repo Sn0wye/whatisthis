@@ -1,5 +1,6 @@
 package com.whatisthis.scorer.services;
 
+import com.whatisthis.scorer.errors.ScoreCalculationException;
 import com.whatisthis.scorer.model.dto.DebtScore;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +19,16 @@ public class CalculateDebtScoreService {
 
     public DebtScore calculate(BigDecimal income, BigDecimal debt) {
         if (income.compareTo(BigDecimal.ZERO) == 0) {
-            throw new IllegalArgumentException("Income cannot be zero.");
+            throw new ScoreCalculationException("Income cannot be zero.");
         }
 
         // Calculate the ratio as a percentage (debt / income * 100)
         BigDecimal ratioPercent = debt.divide(income, 4, RoundingMode.FLOOR).multiply(new BigDecimal("100"));
+
+        // Debt exceeds income
+        if (debt.compareTo(income) > 0) {
+            return new DebtScore(LOW_RATIO_SCORE); // Assign the minimum score or customize logic
+        }
 
         if (ratioPercent.compareTo(LOW_RATIO_THRESHOLD_PERCENT) < 0) {
             return new DebtScore(HIGH_RATIO_SCORE);

@@ -1,13 +1,20 @@
 package com.whatisthis.scorer.controllers;
 
 import com.whatisthis.scorer.entities.Score;
-import com.whatisthis.scorer.model.dto.CalculateScoreDTO;
+import com.whatisthis.scorer.model.response.ScoreNotFoundResponse;
+import com.whatisthis.scorer.model.response.ValidationErrorResponse;
 import com.whatisthis.scorer.model.request.CalculateScoreRequest;
 import com.whatisthis.scorer.model.request.UpdateScoreRequest;
+import com.whatisthis.scorer.model.response.ErrorResponse;
 import com.whatisthis.scorer.model.response.ScoreResponse;
 import com.whatisthis.scorer.repositories.ScoreRepository;
 import com.whatisthis.scorer.services.CalculateCreditScoreService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -29,6 +36,40 @@ public class ScoreController {
     private CalculateCreditScoreService calculateCreditScoreService;
 
     @Operation(description = "Get credit score")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "ScoreResponse",
+                    content = @Content(
+                            schema = @Schema(implementation = ScoreResponse.class),
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"creditScore\": 750 }")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Score not found",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "ScoreNotFoundResponse",
+                                    value = "{ \"message\": \"Score not found\", \"status_code\": 404 }"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "ErrorResponse",
+                                    value = "{ \"message\": \"Something went wrong :(\", \"status_code\": 500 }")
+                    )
+            )
+    })
     @GetMapping("/score")
     public ResponseEntity<ScoreResponse> getScore(HttpServletRequest request) {
         String userId = request.getAttribute("userId").toString();
@@ -47,8 +88,43 @@ public class ScoreController {
     }
 
     @Operation(description = "Calculate credit score")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "OK",
+                    content = @Content(
+                            schema = @Schema(implementation = ScoreResponse.class),
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"creditScore\": 750 }")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request body",
+                    content = @Content(
+                            schema = @Schema(implementation = ValidationErrorResponse.class),
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "ValidationErrorResponse",
+                                    value = "{ \"message\": \"Invalid request body\", \"status_code\": 400, \"errors\": { \"income\": \"Income must be greater than zero.\", \"debt\": \"Debt cannot be null.\", \"assetsValue\": \"Assets value cannot be negative.\" } }"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "ErrorResponse",
+                                    value = "{ \"message\": \"Something went wrong :(\", \"status_code\": 500 }")
+                    )
+            )
+    })
     @PostMapping("/score/calculate")
     public ResponseEntity<ScoreResponse> calculateScore(HttpServletRequest request, @Valid @RequestBody CalculateScoreRequest dto) {
+
         String userId = request.getAttribute("userId").toString();
 
         int creditScore = calculateCreditScoreService.execute(
@@ -75,6 +151,40 @@ public class ScoreController {
     }
 
     @Operation(description = "Update credit score")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "OK",
+                    content = @Content(
+                            schema = @Schema(implementation = ScoreResponse.class),
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"creditScore\": 750 }")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Score not found",
+                    content = @Content(
+                            schema = @Schema(implementation = ScoreNotFoundResponse.class),
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "ScoreNotFoundResponse",
+                                    value = "{ \"message\": \"Score not found\", \"status_code\": 404 }"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "ErrorResponse",
+                                    value = "{ \"message\": \"Something went wrong :(\", \"status_code\": 500 }")
+                    )
+            )
+    })
     @PostMapping("/score/update")
     public ResponseEntity<ScoreResponse> updateScore(HttpServletRequest request, @Valid @RequestBody UpdateScoreRequest body) {
         String userId = request.getAttribute("userId").toString();

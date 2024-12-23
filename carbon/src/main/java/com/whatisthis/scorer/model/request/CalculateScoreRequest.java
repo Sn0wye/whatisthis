@@ -11,17 +11,17 @@ public record CalculateScoreRequest(
         @Schema(description = "Income", example = "5000.00")
         @NotNull(message = "Income cannot be null.")
         @Min(value = 1, message = "Income must be greater than zero.")
-        double income,
+        Double income,
 
         @Schema(description = "Debt", example = "1000.00")
         @NotNull(message = "Debt cannot be null.")
         @Min(value = 0, message = "Debt cannot be negative.")
-        double debt,
+        Double debt,
 
         @Schema(description = "Assets value", example = "50000.00")
         @NotNull(message = "Assets value cannot be null.")
         @Min(value = 0, message = "Assets value cannot be negative.")
-        double assetsValue
+        Double assetsValue
 ) {
     public BigDecimal incomeAsDecimal() {
         return BigDecimal.valueOf(income).setScale(4, RoundingMode.FLOOR);

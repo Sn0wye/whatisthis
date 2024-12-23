@@ -1,12 +1,12 @@
 package com.whatisthis.scorer.interceptors;
 
+import com.whatisthis.scorer.errors.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import com.whatisthis.scorer.services.GrpcAuthService;
-import com.whatisthis.scorer.utils.ErrorResponseUtil;
 import pb.Auth;
 
 // This is an overengineered way to validate JWT tokens.
@@ -38,21 +38,17 @@ public class BearerTokenInterceptor implements HandlerInterceptor {
 
                 if (validatedToken == null) {
                     System.err.println("Token validation returned null");
-                    ErrorResponseUtil.writeUnauthorizedErrorResponse(response, "Invalid token");
-                    return false;
+                    throw new UnauthorizedException("Invalid token");
                 }
 
                 request.setAttribute("bearerToken", bearerToken);
                 request.setAttribute("userId", validatedToken.getSub());
                 request.setAttribute("token", validatedToken);
             } catch (Exception e) {
-                System.err.println("JWT parsing or validation failed: " + e.getMessage());
-                ErrorResponseUtil.writeUnauthorizedErrorResponse(response, "JWT parsing or validation failed");
-                return false;
+                throw new UnauthorizedException("JWT parsing or validation failed" + e.getMessage());
             }
         } else {
-            ErrorResponseUtil.writeUnauthorizedErrorResponse(response, "Unauthorized");
-            return false;
+            throw new UnauthorizedException("Unauthorized");
         }
         return true;
     }
