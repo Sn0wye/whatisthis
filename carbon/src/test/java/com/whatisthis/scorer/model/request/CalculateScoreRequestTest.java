@@ -29,15 +29,15 @@ class CalculateScoreRequestTest {
     void validRequest_shouldPassValidation() {
         // Arrange
         assertDoesNotThrow(() -> new CalculateScoreRequest(
-                10000,   // $100.00
-                5000,    // $50.00
-                20000    // $200.00
+                10000.0,   // $100.00
+                5000.0,    // $50.00
+                20000.0    // $200.00
         ));
 
         CalculateScoreRequest request = new CalculateScoreRequest(
-                10000,   // $100.00
-                5000,    // $50.00
-                20000    // $200.00
+                10000.0,   // $100.00
+                5000.0,    // $50.00
+                20000.0    // $200.00
         );
 
         // Act
@@ -52,9 +52,9 @@ class CalculateScoreRequestTest {
         // Arrange & Act
         Set<ConstraintViolation<CalculateScoreRequest>> violations = validator.validate(
                 new CalculateScoreRequest(
-                        0,
-                        5000,
-                        20000
+                        0.0,
+                        5000.0,
+                        20000.0
                 )
         );
 
@@ -70,9 +70,9 @@ class CalculateScoreRequestTest {
         // Arrange & Act
         Set<ConstraintViolation<CalculateScoreRequest>> violations = validator.validate(
                 new CalculateScoreRequest(
-                        10000,
-                        -1,
-                        20000
+                        10000.0,
+                        -1.0,
+                        20000.0
                 )
         );
 
@@ -88,9 +88,9 @@ class CalculateScoreRequestTest {
         // Arrange & Act
         Set<ConstraintViolation<CalculateScoreRequest>> violations = validator.validate(
                 new CalculateScoreRequest(
-                        10000,
-                        5000,
-                        -1
+                        10000.0,
+                        5000.0,
+                        -1.0
                 )
         );
 
