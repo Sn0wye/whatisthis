@@ -1,7 +1,5 @@
 package com.whatisthis.scorer.exceptions;
 
-import com.whatisthis.scorer.errors.ScoreNotFoundException;
-import com.whatisthis.scorer.errors.UnauthorizedException;
 import com.whatisthis.scorer.model.response.ErrorResponse;
 import com.whatisthis.scorer.model.response.ScoreNotFoundResponse;
 import com.whatisthis.scorer.model.response.ValidationErrorResponse;

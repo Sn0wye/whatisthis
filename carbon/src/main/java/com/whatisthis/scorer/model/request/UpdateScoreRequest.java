@@ -24,14 +24,14 @@ public record UpdateScoreRequest(
         double assetsValue
 ) {
     public BigDecimal incomeAsDecimal() {
-        return BigDecimal.valueOf(income).setScale(2, RoundingMode.FLOOR);
+        return BigDecimal.valueOf(income).setScale(2, RoundingMode.HALF_EVEN);
     }
 
     public BigDecimal debtAsDecimal() {
-        return BigDecimal.valueOf(debt).setScale(2, RoundingMode.FLOOR);
+        return BigDecimal.valueOf(debt).setScale(2, RoundingMode.HALF_EVEN);
     }
 
     public BigDecimal assetsValueAsDecimal() {
-        return BigDecimal.valueOf(assetsValue).setScale(2, RoundingMode.FLOOR);
+        return BigDecimal.valueOf(assetsValue).setScale(2, RoundingMode.HALF_EVEN);
     }
 }

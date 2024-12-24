@@ -25,14 +25,14 @@ public class CalculateIncomeScoreService {
         // Check if income is greater than MEDIUM_INCOME_THRESHOLD
         if (income.compareTo(MEDIUM_INCOME_THRESHOLD) > 0) {
             BigDecimal proportion = income.subtract(MEDIUM_INCOME_THRESHOLD)
-                    .divide(HIGH_INCOME_THRESHOLD.subtract(MEDIUM_INCOME_THRESHOLD), 4, RoundingMode.FLOOR);
+                    .divide(HIGH_INCOME_THRESHOLD.subtract(MEDIUM_INCOME_THRESHOLD), 4, RoundingMode.HALF_EVEN);
             int score = MEDIUM_INCOME_SCORE_MIN + proportion.multiply(new BigDecimal(MEDIUM_INCOME_SCORE_MAX - MEDIUM_INCOME_SCORE_MIN)).intValue();
             return new IncomeScore(score);
         }
 
         // If income is above zero but less than MEDIUM_INCOME_THRESHOLD
         if (income.compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal proportion = income.divide(MEDIUM_INCOME_THRESHOLD, 4, RoundingMode.FLOOR);
+            BigDecimal proportion = income.divide(MEDIUM_INCOME_THRESHOLD, 4, RoundingMode.HALF_EVEN);
             int score = proportion.multiply(new BigDecimal(MEDIUM_INCOME_SCORE_MIN)).intValue();
             return new IncomeScore(score);
         }

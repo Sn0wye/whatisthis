@@ -1,6 +1,6 @@
 package com.whatisthis.scorer.services;
 
-import com.whatisthis.scorer.errors.ScoreCalculationException;
+import com.whatisthis.scorer.exceptions.ScoreCalculationException;
 import com.whatisthis.scorer.model.dto.AssetScore;
 import org.springframework.stereotype.Service;
 
@@ -31,14 +31,14 @@ public class CalculateAssetsScoreService {
         // Check if assets value is greater than the medium assets threshold
         if (assetsValue.compareTo(MEDIUM_ASSETS_THRESHOLD) > 0) {
             BigDecimal proportion = assetsValue.subtract(MEDIUM_ASSETS_THRESHOLD)
-                    .divide(EXPENSIVE_ASSETS_THRESHOLD.subtract(MEDIUM_ASSETS_THRESHOLD), 4, RoundingMode.FLOOR);
+                    .divide(EXPENSIVE_ASSETS_THRESHOLD.subtract(MEDIUM_ASSETS_THRESHOLD), 4, RoundingMode.HALF_EVEN);
             int score = MEDIUM_ASSETS_SCORE_MIN + proportion.multiply(new BigDecimal(MEDIUM_ASSETS_SCORE_MAX - MEDIUM_ASSETS_SCORE_MIN)).intValue();
             return new AssetScore(score);
         }
 
         // Check if assets value is positive but less than medium assets threshold
         if (assetsValue.compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal proportion = assetsValue.divide(MEDIUM_ASSETS_THRESHOLD, 4, RoundingMode.FLOOR);
+            BigDecimal proportion = assetsValue.divide(MEDIUM_ASSETS_THRESHOLD, 4, RoundingMode.HALF_EVEN);
             int score = proportion.multiply(new BigDecimal(MEDIUM_ASSETS_SCORE_MIN)).intValue();
             return new AssetScore(score);
         }

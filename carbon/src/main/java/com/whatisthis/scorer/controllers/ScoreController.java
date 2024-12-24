@@ -4,11 +4,9 @@ import com.whatisthis.scorer.entities.Score;
 import com.whatisthis.scorer.model.response.ScoreNotFoundResponse;
 import com.whatisthis.scorer.model.response.ValidationErrorResponse;
 import com.whatisthis.scorer.model.request.CalculateScoreRequest;
-import com.whatisthis.scorer.model.request.UpdateScoreRequest;
 import com.whatisthis.scorer.model.response.ErrorResponse;
 import com.whatisthis.scorer.model.response.ScoreResponse;
-import com.whatisthis.scorer.repositories.ScoreRepository;
-import com.whatisthis.scorer.services.CalculateCreditScoreService;
+import com.whatisthis.scorer.services.ScoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -30,10 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScoreController {
 
     @Autowired
-    private ScoreRepository scoreRepository;
-
-    @Autowired
-    private CalculateCreditScoreService calculateCreditScoreService;
+    private ScoreService scoreService;
 
     @Operation(description = "Get credit score")
     @ApiResponses(value = {
@@ -50,7 +45,7 @@ public class ScoreController {
                     responseCode = "404",
                     description = "Score not found",
                     content = @Content(
-                            schema = @Schema(implementation = ErrorResponse.class),
+                            schema = @Schema(implementation = ScoreNotFoundResponse.class),
                             mediaType = "application/json",
                             examples = @ExampleObject(
                                     name = "ScoreNotFoundResponse",
@@ -74,11 +69,7 @@ public class ScoreController {
     public ResponseEntity<ScoreResponse> getScore(HttpServletRequest request) {
         String userId = request.getAttribute("userId").toString();
 
-        Score score = scoreRepository.findByUserId(userId).orElse(null);
-
-        if (score == null) {
-            return ResponseEntity.notFound().build();
-        }
+        Score score = scoreService.getScore(userId);
 
         return ResponseEntity.ok(
                 new ScoreResponse(
@@ -122,96 +113,16 @@ public class ScoreController {
                     )
             )
     })
-    @PostMapping("/score/calculate")
+    @PostMapping("/score")
     public ResponseEntity<ScoreResponse> calculateScore(HttpServletRequest request, @Valid @RequestBody CalculateScoreRequest dto) {
 
         String userId = request.getAttribute("userId").toString();
 
-        int creditScore = calculateCreditScoreService.execute(
-                dto.incomeAsDecimal(),
-                dto.debtAsDecimal(),
-                dto.assetsValueAsDecimal()
-        );
-
-        Score score = scoreRepository.findByUserId(userId).orElseGet(Score::new);
-
-        score.setUserId(userId);
-        score.setIncome(dto.incomeAsDecimal());
-        score.setDebt(dto.debtAsDecimal());
-        score.setAssetsValue(dto.assetsValueAsDecimal());
-        score.setCreditScore(creditScore);
-
-        scoreRepository.save(score);
+        Score score = scoreService.calculateScore(userId, dto.incomeAsDecimal(), dto.debtAsDecimal(), dto.assetsValueAsDecimal());
 
         return ResponseEntity.ok(
                 new ScoreResponse(
                         score.getCreditScore()
-                )
-        );
-    }
-
-    @Operation(description = "Update credit score")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "OK",
-                    content = @Content(
-                            schema = @Schema(implementation = ScoreResponse.class),
-                            mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"creditScore\": 750 }")
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Score not found",
-                    content = @Content(
-                            schema = @Schema(implementation = ScoreNotFoundResponse.class),
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "ScoreNotFoundResponse",
-                                    value = "{ \"message\": \"Score not found\", \"status_code\": 404 }"
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponse.class),
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "ErrorResponse",
-                                    value = "{ \"message\": \"Something went wrong :(\", \"status_code\": 500 }")
-                    )
-            )
-    })
-    @PostMapping("/score/update")
-    public ResponseEntity<ScoreResponse> updateScore(HttpServletRequest request, @Valid @RequestBody UpdateScoreRequest body) {
-        String userId = request.getAttribute("userId").toString();
-
-        Score existingScore = scoreRepository.findByUserId(userId).orElse(null);
-
-        if (existingScore == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        existingScore.setIncome(body.incomeAsDecimal());
-        existingScore.setDebt(body.debtAsDecimal());
-        existingScore.setAssetsValue(body.assetsValueAsDecimal());
-
-        int creditScore = calculateCreditScoreService.execute(
-                existingScore.getIncome(),
-                existingScore.getDebt(),
-                existingScore.getAssetsValue()
-        );
-
-        existingScore.setCreditScore(creditScore);
-
-        scoreRepository.save(existingScore);
-
-        return ResponseEntity.ok(
-                new ScoreResponse(
-                        existingScore.getCreditScore()
                 )
         );
     }

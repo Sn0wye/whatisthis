@@ -1,4 +1,4 @@
-package com.whatisthis.scorer.errors;
+package com.whatisthis.scorer.exceptions;
 
 public class UnauthorizedException extends RuntimeException {
     public UnauthorizedException(String message) {

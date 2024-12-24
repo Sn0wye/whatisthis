@@ -1,6 +1,6 @@
 package com.whatisthis.scorer.interceptors;
 
-import com.whatisthis.scorer.errors.UnauthorizedException;
+import com.whatisthis.scorer.exceptions.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -31,51 +31,71 @@
     }
   ],
   "paths": {
-    "/score/update": {
-      "post": {
-        "tags": ["Scorer"],
-        "description": "Update credit score",
-        "operationId": "updateScore",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateScoreRequest"
-              }
-            }
-          },
-          "required": true
-        },
+    "/score": {
+      "get": {
+        "tags": [
+          "Scorer"
+        ],
+        "description": "Get credit score",
+        "operationId": "getScore",
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "ScoreResponse",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ScoreResponse"
+                },
+                "example": {
+                  "creditScore": 750
                 }
               }
             }
           },
-          "400": {
-            "description": "Bad Request",
+          "404": {
+            "description": "Score not found",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+                  "$ref": "#/components/schemas/ScoreNotFoundResponse"
+                },
+                "examples": {
+                  "ScoreNotFoundResponse": {
+                    "description": "ScoreNotFoundResponse",
+                    "value": {
+                      "message": "Score not found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "ErrorResponse": {
+                    "description": "ErrorResponse",
+                    "value": {
+                      "message": "Something went wrong :(",
+                      "status_code": 500
+                    }
                   }
                 }
               }
             }
           }
         }
-      }
-    },
-    "/score/calculate": {
+      },
       "post": {
-        "tags": ["Scorer"],
+        "tags": [
+          "Scorer"
+        ],
         "description": "Calculate credit score",
         "operationId": "calculateScore",
         "requestBody": {
@@ -90,30 +110,36 @@
         },
         "responses": {
           "200": {
-            "description": "Credit score calculated successfully",
+            "description": "OK",
             "content": {
               "application/json": {
-                "examples": {
-                  "SuccessfulResponse": {
-                    "description": "SuccessfulResponse",
-                    "value": {
-                      "creditScore": 750
-                    }
-                  }
+                "schema": {
+                  "$ref": "#/components/schemas/ScoreResponse"
+                },
+                "example": {
+                  "creditScore": 750
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request payload",
+            "description": "Invalid request body",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                },
                 "examples": {
-                  "BadRequestResponse": {
-                    "description": "BadRequestResponse",
+                  "ValidationErrorResponse": {
+                    "description": "ValidationErrorResponse",
                     "value": {
-                      "error": "Invalid input",
-                      "details": "Debt cannot be negative."
+                      "message": "Invalid request body",
+                      "status_code": 400,
+                      "errors": {
+                        "income": "Income must be greater than zero.",
+                        "debt": "Debt cannot be null.",
+                        "assetsValue": "Assets value cannot be negative."
+                      }
                     }
                   }
                 }
@@ -124,45 +150,16 @@
             "description": "Internal server error",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "examples": {
-                  "InternalErrorResponse": {
-                    "description": "InternalErrorResponse",
+                  "ErrorResponse": {
+                    "description": "ErrorResponse",
                     "value": {
-                      "error": "Unexpected error",
-                      "details": "Something went wrong."
+                      "message": "Something went wrong :(",
+                      "status_code": 500
                     }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/score": {
-      "get": {
-        "tags": ["Scorer"],
-        "description": "Get credit score",
-        "operationId": "getScore",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ScoreResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
                   }
                 }
               }
@@ -173,7 +170,9 @@
     },
     "/loan/apply": {
       "post": {
-        "tags": ["Loan"],
+        "tags": [
+          "Loan"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -219,7 +218,9 @@
     },
     "/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "/auth/login",
         "description": "Login",
         "requestBody": {
@@ -280,7 +281,9 @@
     },
     "/auth/profile": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "/auth/profile",
         "description": "Get user profile",
         "responses": {
@@ -324,7 +327,9 @@
     },
     "/auth/register": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "/auth/register",
         "description": "Register a new user",
         "requestBody": {
@@ -386,8 +391,12 @@
   },
   "components": {
     "schemas": {
-      "UpdateScoreRequest": {
-        "required": ["assetsValue", "debt", "income"],
+      "CalculateScoreRequest": {
+        "required": [
+          "assetsValue",
+          "debt",
+          "income"
+        ],
         "type": "object",
         "properties": {
           "income": {
@@ -410,6 +419,22 @@
             "description": "Assets value",
             "format": "double",
             "example": 50000
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Something went wrong :("
+          },
+          "status_code": {
+            "type": "integer",
+            "description": "Status code",
+            "format": "int32",
+            "example": 500
           }
         }
       },
@@ -418,39 +443,62 @@
         "properties": {
           "creditScore": {
             "type": "integer",
-            "format": "int32"
+            "description": "Credit score",
+            "format": "int32",
+            "example": 700
           }
         }
       },
-      "CalculateScoreRequest": {
-        "required": ["assetsValue", "debt", "income"],
+      "ValidationErrorResponse": {
         "type": "object",
         "properties": {
-          "income": {
-            "minimum": 1,
-            "type": "number",
-            "description": "Income",
-            "format": "double",
-            "example": 5000
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid request body."
           },
-          "debt": {
-            "minimum": 0,
-            "type": "number",
-            "description": "Debt",
-            "format": "double",
-            "example": 1000
+          "status_code": {
+            "type": "integer",
+            "description": "Status code",
+            "format": "int32",
+            "example": 400
           },
-          "assetsValue": {
-            "minimum": 0,
-            "type": "number",
-            "description": "Assets value",
-            "format": "double",
-            "example": 50000
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Validation errors",
+              "example": "{\"income\":\"Income cannot be null.\",\"debt\":\"Debt cannot be negative.\"}"
+            },
+            "description": "Validation errors",
+            "example": {
+              "income": "Income cannot be null.",
+              "debt": "Debt cannot be negative."
+            }
+          }
+        }
+      },
+      "ScoreNotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Score not found"
+          },
+          "status_code": {
+            "type": "integer",
+            "description": "Status code",
+            "format": "int32",
+            "example": 404
           }
         }
       },
       "ApplyForLoanRequest": {
-        "required": ["loanAmount", "term"],
+        "required": [
+          "loanAmount",
+          "term"
+        ],
         "type": "object",
         "properties": {
           "loanAmount": {
@@ -517,7 +565,11 @@
         "additionalProperties": false
       },
       "LoanApplicationStatus": {
-        "enum": ["PENDING", "APPROVED", "REJECTED"],
+        "enum": [
+          "PENDING",
+          "APPROVED",
+          "REJECTED"
+        ],
         "type": "string"
       },
       "BadRequestError": {
@@ -547,7 +599,10 @@
         }
       },
       "LoginRequest": {
-        "required": ["email", "password"],
+        "required": [
+          "email",
+          "password"
+        ],
         "type": "object",
         "properties": {
           "email": {

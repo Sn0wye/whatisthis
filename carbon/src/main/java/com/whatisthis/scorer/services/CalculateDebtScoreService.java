@@ -1,6 +1,6 @@
 package com.whatisthis.scorer.services;
 
-import com.whatisthis.scorer.errors.ScoreCalculationException;
+import com.whatisthis.scorer.exceptions.ScoreCalculationException;
 import com.whatisthis.scorer.model.dto.DebtScore;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class CalculateDebtScoreService {
         }
 
         // Calculate the ratio as a percentage (debt / income * 100)
-        BigDecimal ratioPercent = debt.divide(income, 4, RoundingMode.FLOOR).multiply(new BigDecimal("100"));
+        BigDecimal ratioPercent = debt.divide(income, 4, RoundingMode.HALF_EVEN).multiply(new BigDecimal("100"));
 
         // Debt exceeds income
         if (debt.compareTo(income) > 0) {
@@ -36,13 +36,13 @@ public class CalculateDebtScoreService {
 
         if (ratioPercent.compareTo(MEDIUM_RATIO_THRESHOLD_PERCENT) < 0) {
             BigDecimal proportion = ratioPercent.subtract(LOW_RATIO_THRESHOLD_PERCENT)
-                    .divide(MEDIUM_RATIO_THRESHOLD_PERCENT.subtract(LOW_RATIO_THRESHOLD_PERCENT), 4, RoundingMode.FLOOR);
+                    .divide(MEDIUM_RATIO_THRESHOLD_PERCENT.subtract(LOW_RATIO_THRESHOLD_PERCENT), 4, RoundingMode.HALF_EVEN);
             int score = MEDIUM_RATIO_SCORE_MIN + proportion.multiply(new BigDecimal(MEDIUM_RATIO_SCORE_MAX - MEDIUM_RATIO_SCORE_MIN)).intValue();
             return new DebtScore(score);
         }
 
         BigDecimal proportion = ratioPercent.subtract(MEDIUM_RATIO_THRESHOLD_PERCENT)
-                .divide(new BigDecimal("100").subtract(MEDIUM_RATIO_THRESHOLD_PERCENT), 4, RoundingMode.FLOOR);
+                .divide(new BigDecimal("100").subtract(MEDIUM_RATIO_THRESHOLD_PERCENT), 4, RoundingMode.HALF_EVEN);
         int score = LOW_RATIO_SCORE + proportion.multiply(new BigDecimal(MEDIUM_RATIO_SCORE_MIN - LOW_RATIO_SCORE)).intValue();
         return new DebtScore(score);
     }
