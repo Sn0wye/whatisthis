@@ -3,6 +3,7 @@ using Loan.Domain.Enums;
 using Loan.DTO.Response;
 using Loan.Service;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Loan.API.Controllers;
 
@@ -10,7 +11,14 @@ namespace Loan.API.Controllers;
 [Route("loan")]
 public class LoanController(ILoanService loanService) : ControllerBase
 {
-    [HttpPost("apply")]
+    [SwaggerOperation(
+        Summary    = "Apply for a loan",
+        Description = "Apply for a loan with the desired amount and term"
+    )]
+    [SwaggerResponse(200, "ApplyForLoanResponse", typeof(ApplyForLoanResponse))]
+    [SwaggerResponse(400, "BadRequest", typeof(ValidationErrorResponse))]
+    [SwaggerResponse(401, "Unauthorized", typeof(void))]
+    [HttpPost]
     public async Task<ActionResult<ApplyForLoanResponse>> ApplyForLoan([FromBody] ApplyForLoanRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);

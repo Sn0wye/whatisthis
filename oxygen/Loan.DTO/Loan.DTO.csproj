@@ -10,4 +10,8 @@
       <ProjectReference Include="..\Loan.Domain\Loan.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
+    </ItemGroup>
+
 </Project>
